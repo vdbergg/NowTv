@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "481442247768",
+    "firebase_url": "https://nowtv-b1a20.firebaseio.com",
+    "project_id": "nowtv-b1a20",
+    "storage_bucket": "nowtv-b1a20.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:481442247768:android:5e1c2f4659f5b0d2",
+        "android_client_info": {
+          "package_name": "com.rc.nowtv"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "481442247768-u89acpnh7clte7ppbp0k118o9actfds8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rc.nowtv",
+            "certificate_hash": "382890b9ee55aabeda9ddf406f20bf6b222c9f1a"
+          }
+        },
+        {
+          "client_id": "481442247768-alat4s0ld52o8iq70bq0a3bokli0fh5q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXOXFSNLawibPOsvbvVRIbRzd5ZfEDd04"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "481442247768-alat4s0ld52o8iq70bq0a3bokli0fh5q.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "481442247768-9dfs18b8j0b88eeka80n7q50od0pjp47.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rc.nowtv"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">NowTv</string>
+    <string name="live">AO VIVO</string>
+    <string name="exit">Sair</string>
+    <string name="logout_message">Você foi deslogado.</string>
+    <string name="connection_error_message">Erro de conexão. Tente novamente!</string>
+    <string name="live_title">Bate-papo ao vivo</string>
+</resources>
