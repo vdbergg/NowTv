@@ -2,10 +2,10 @@ package com.rc.nowtv.activities;
 
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,8 +25,6 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.FirebaseAuth;
 import com.rc.nowtv.R;
 import com.rc.nowtv.models.User;
 import com.rc.nowtv.utils.C;
@@ -60,8 +58,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FirebaseApp.initializeApp(this);
-
         setContentView(R.layout.activity_main);
 
         initView();
@@ -77,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     Snackbar.make(rootView, getString(R.string.logout_message), Snackbar.LENGTH_SHORT).show();
+                    localStorage.addToStorage(LocalStorage.USER, null);
                     finish();
                 }
             });
@@ -180,6 +177,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+            btnSignIn.setVisibility(View.GONE);
+        } else {
+            localStorage.addToStorage(LocalStorage.USER, null);
+        }
         btnSignIn.setSize(SignInButton.SIZE_STANDARD);
         btnSignIn.setScopes(gso.getScopeArray());
     }

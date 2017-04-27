@@ -1,10 +1,10 @@
 package com.rc.nowtv.activities;
 
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
@@ -21,7 +22,6 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.rc.nowtv.R;
@@ -38,6 +38,8 @@ import tv.icomp.vod.vodplayer.VodPlayer;
 import tv.icomp.vod.vodplayer.trackselector.evaluator.source.Evaluator;
 
 public class PlayerActivity extends AppCompatActivity {
+
+    private static final String TAG = PlayerActivity.class.getSimpleName();
 
     private LocalStorage localStorage;
     private VodPlayer vodPlayer;
@@ -76,6 +78,7 @@ public class PlayerActivity extends AppCompatActivity {
         layoutShowChatLive = (RelativeLayout) findViewById(R.id.layout_show_chat_live);
         imgShowChat = (ImageView) findViewById(R.id.iv_show_chat);
         layoutChat = (RelativeLayout) findViewById(R.id.layout_chat);
+        listOfMessage = (ListView) findViewById(R.id.list_of_message);
 
         emojiButton = (ImageView)findViewById(R.id.emoji_button);
         submitButton = (ImageView)findViewById(R.id.submit_button);
@@ -85,6 +88,21 @@ public class PlayerActivity extends AppCompatActivity {
 
         localStorage = LocalStorage.getInstance(getApplicationContext());
         user = localStorage.getObjectFromStorage(LocalStorage.USER, User.class);
+
+        if(user == null) {
+            submitButton.setEnabled(false);
+            emojiconEditText.setEnabled(false);
+
+            emojiconEditText.setText(R.string.warning_interactions);
+            emojIconActions.closeEmojicon();
+        } else {
+            Toast.makeText(rootView.getContext(), rootView.getContext().getString(R.string.welcome)
+                    + ", " + user.getName(), Toast.LENGTH_SHORT).show();
+            submitButton.setEnabled(true);
+            emojiconEditText.setEnabled(true);
+            emojiconEditText.setText("");
+            emojIconActions.ShowEmojicon();
+        }
     }
 
     private void initListener() {
@@ -92,6 +110,7 @@ public class PlayerActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (emojiconEditText.getText().toString().length() > 0) {
+
                     FirebaseDatabase.getInstance().getReference().push().setValue(
                             new ChatMessage(emojiconEditText.getText().toString(), user.getName(), user.getUrlPhoto()));
 
@@ -152,7 +171,9 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     private void displayChatMessage() {
-        listOfMessage = (ListView)findViewById(R.id.list_of_message);
+        Log.d(TAG, FirebaseDatabase.getInstance().getReference()  != null ?
+                FirebaseDatabase.getInstance().getReference().toString() : "FirebaseDatabase é nulo!");
+
         adapter = new FirebaseListAdapter<ChatMessage>(this, ChatMessage.class, R.layout.list_item,
                 FirebaseDatabase.getInstance().getReference()) {
             @Override
@@ -166,7 +187,13 @@ public class PlayerActivity extends AppCompatActivity {
                 messageUser = (TextView) v.findViewById(R.id.message_user);
                 messageTime = (TextView) v.findViewById(R.id.message_time);
 
-                Glide.with(getApplicationContext()).load(model.getUrlUserPhoto()).asBitmap().centerCrop().placeholder(R.mipmap.user).into(new BitmapImageViewTarget(photoUser) {
+                Glide
+                        .with(getApplicationContext())
+                        .load(model.getUrlUserPhoto())
+                        .asBitmap().centerCrop()
+                        .placeholder(R.mipmap.user)
+                        .into(new BitmapImageViewTarget(photoUser) {
+
                     @Override
                     protected void setResource(Bitmap resource) {
                         RoundedBitmapDrawable circularBitmapDrawable =

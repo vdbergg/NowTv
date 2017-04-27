@@ -5,4 +5,6 @@
     <string name="logout_message">Você foi deslogado.</string>
     <string name="connection_error_message">Erro de conexão. Tente novamente!</string>
     <string name="live_title">Bate-papo ao vivo</string>
+    <string name="welcome">Bem-vindo</string>
+    <string name="warning_interactions">É necessário fazer login</string>
 </resources>

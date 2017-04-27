@@ -9,16 +9,20 @@ import java.util.Date;
 public class ChatMessage {
 
     private String messageText;
-    private String nameuser;
+    private String username;
     private long time;
     private String urlUserPhoto;
 
-    public ChatMessage(String messageText, String nameUser, String urlUserPhoto) {
+    public ChatMessage(String messageText, String username, String urlUserPhoto) {
         this.messageText = messageText;
-        this.nameuser = nameUser;
+        this.username = username;
         this.urlUserPhoto = urlUserPhoto;
 
         time = new Date().getTime();
+    }
+
+    public ChatMessage() {
+
     }
 
     public String getMessageText() {
@@ -30,11 +34,11 @@ public class ChatMessage {
     }
 
     public String getUsername() {
-        return nameuser;
+        return username;
     }
 
-    public void setNameuser(String nameuser) {
-        this.nameuser = nameuser;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public long getTime() {
