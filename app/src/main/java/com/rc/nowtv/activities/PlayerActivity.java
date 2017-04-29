@@ -89,7 +89,7 @@ public class PlayerActivity extends AppCompatActivity {
         localStorage = LocalStorage.getInstance(getApplicationContext());
         user = localStorage.getObjectFromStorage(LocalStorage.USER, User.class);
 
-        if(user == null) {
+        if (user == null) {
             submitButton.setEnabled(false);
             emojiconEditText.setEnabled(false);
 

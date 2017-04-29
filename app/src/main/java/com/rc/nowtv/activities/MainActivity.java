@@ -32,14 +32,30 @@ import com.rc.nowtv.utils.LocalStorage;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.PacketCollector;
 import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.StanzaListener;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat.Chat;
 import org.jivesoftware.smack.chat.ChatManager;
 import org.jivesoftware.smack.chat.ChatManagerListener;
 import org.jivesoftware.smack.chat.ChatMessageListener;
+import org.jivesoftware.smack.filter.AndFilter;
+import org.jivesoftware.smack.filter.FromMatchesFilter;
+import org.jivesoftware.smack.filter.StanzaFilter;
+import org.jivesoftware.smack.filter.StanzaTypeFilter;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Stanza;
+import org.jivesoftware.smack.roster.Roster;
+import org.jivesoftware.smack.roster.RosterEntry;
+import org.jivesoftware.smack.roster.RosterListener;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.iqregister.AccountManager;
+
+import java.io.IOException;
+import java.util.Collection;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
@@ -163,8 +179,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     private void initValue() {
         initLogin();
-        MyLoginTask task = new MyLoginTask();
-        task.execute("");
     }
 
     private void initLogin() {
@@ -203,8 +217,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             String id = acct.getIdToken();
             String urlPhoto = acct.getPhotoUrl() != null ? acct.getPhotoUrl().toString() : "";
 
+            Log.d(TAG, "IdUser: " + idUser);
+            Log.d(TAG, "Token: " + id);
+            Log.d(TAG, "Primeira parte email: " + email.substring(0, email.lastIndexOf("@")));
+
+
             User user = new User(fullname, email, idUser, urlPhoto);
             localStorage.addToStorage(LocalStorage.USER, user);
+
+            String username = email.substring(0, email.lastIndexOf("@"));
+            MyLoginTask task = new MyLoginTask(username, idUser);
+            task.execute("");
 
             startActivity(new Intent(getApplicationContext(), PlayerActivity.class));
         } else {
@@ -226,11 +249,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
     private class MyLoginTask extends AsyncTask<String, String, String> {
+        private String username;
+        private String password;
+
+        public MyLoginTask(String username, String password) {
+            this.username = username;
+            this.password = password;
+        }
+
         @Override
         protected String doInBackground(String... strings) {
 
             XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
-                    .setUsernameAndPassword("berg", "041097")
+                    //.setUsernameAndPassword("berg", "041097")
                     .setHost(C.URL_SERVER)
                     .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
                     .setServiceName(C.DOMAIN)
@@ -242,6 +273,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
             try {
                 con1.connect();
+
+                AccountManager accountManager = AccountManager.getInstance(con1);
+
+                if (accountManager.supportsAccountCreation()) {
+                    try {
+                        accountManager.createAccount(username, password);
+                    } catch (XMPPException ex) {
+                        Log.d(TAG, "Erro ao criar conta");
+                    }
+
+                }
+                else{
+                    Log.d(TAG, "Server doesn't support creating new accounts");
+                }
+             //   accountManager.sensitiveOperationOverInsecureConnection(true);
+               // accountManager.createAccount(username + "@" + C.DOMAIN, password);   // Skipping optional fields like email, first name, last name, etc..
 
                 if (con1.isConnected()) {
                     Log.d(TAG, "Connection done");
@@ -272,9 +319,42 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                         }
                     });
                 }
-            } catch (Exception e) {
+            } catch (SmackException | IOException | XMPPException e) {
                 Log.d(TAG, e.toString());
             }
+
+            Roster roster = Roster.getInstanceFor(con1);
+            Collection<RosterEntry> entries = roster.getEntries();
+            for (RosterEntry entry : entries) {
+                System.out.println("Entry roster: " + entry);
+            }
+
+            roster.addRosterListener(new RosterListener() {
+                public void entriesDeleted(Collection<String> addresses) {}
+
+                @Override
+                public void entriesAdded(Collection<String> addresses) {}
+
+                public void entriesUpdated(Collection<String> addresses) {}
+                public void presenceChanged(Presence presence) {
+                    System.out.println("Presence changed: " + presence.getFrom() + " " + presence);
+                }
+            });
+
+            StanzaFilter filter = new AndFilter(new StanzaTypeFilter(Message.class), new FromMatchesFilter("teste1@myserver.com", true));
+            PacketCollector myCollector = con1.createPacketCollector(filter);
+
+            StanzaListener myListener = new StanzaListener() {
+                @Override
+                public void processPacket(Stanza packet) throws SmackException.NotConnectedException {
+
+                }
+
+                public void processStanza(Stanza stanza) {
+                    // Do something with the incoming stanza here._
+                }
+            };
+            con1.addAsyncStanzaListener(myListener, filter);
 
             return "";
         }
