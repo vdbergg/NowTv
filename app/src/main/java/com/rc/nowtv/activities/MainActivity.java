@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             String email = acct.getEmail();
             String idUser = acct.getId();
             String id = acct.getIdToken();
-            String urlPhoto = acct.getPhotoUrl().toString();
+            String urlPhoto = acct.getPhotoUrl() != null ? acct.getPhotoUrl().toString() : "";
 
             User user = new User(fullname, email, idUser, urlPhoto);
             localStorage.addToStorage(LocalStorage.USER, user);
