@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NowTv</string>
+    <string name="app_name">NowTV</string>
     <string name="live">AO VIVO</string>
     <string name="exit">Sair</string>
     <string name="logout_message">Você foi deslogado.</string>
