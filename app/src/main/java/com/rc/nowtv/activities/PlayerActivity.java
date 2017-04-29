@@ -191,7 +191,7 @@ public class PlayerActivity extends AppCompatActivity {
                         .with(getApplicationContext())
                         .load(model.getUrlUserPhoto())
                         .asBitmap().centerCrop()
-                        .placeholder(R.mipmap.user)
+                        .placeholder(R.mipmap.ic_person_black_24dp)
                         .into(new BitmapImageViewTarget(photoUser) {
 
                     @Override
