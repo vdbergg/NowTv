@@ -268,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                                 }
                             });
 
-                            Log.d("App", chat.toString());
+                            Log.d(TAG, chat.toString());
                         }
                     });
                 }
