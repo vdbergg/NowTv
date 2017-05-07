@@ -4,44 +4,68 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:facebook="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/colorPrimaryDark"
     tools:context="com.rc.nowtv.activities.MainActivity">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="25dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal"
+        android:text="@string/welcome"
+        android:textSize="50sp"
+        android:textColor="@color/colorAccent"
+        android:textStyle="bold"/>
+
 
     <com.google.android.gms.common.SignInButton
-        android:id="@+id/btn_sign_in_gmail"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="67dp"
+        android:id="@+id/btn_sign_in_gmail"
         android:layout_centerInParent="true"
-        android:layout_marginLeft="25dp"
-        android:layout_marginRight="25dp"
+        android:layout_marginLeft="22dp"
+        android:layout_marginRight="22dp"
         android:layout_marginTop="300dp" />
 
     <com.facebook.login.widget.LoginButton
-        android:id="@+id/loginButton"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_login_facebook"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
         android:layout_marginTop="10dp"
         android:paddingTop="20dp"
         android:paddingBottom="20dp"
         android:layout_below="@id/btn_sign_in_gmail"
-        android:layout_gravity="center_horizontal"
         facebook:com_facebook_confirm_logout="true"
         facebook:com_facebook_tooltip_mode="never_display" />
 
-    <Button
-        android:id="@+id/btn_live"
+    <!--<Button-->
+        <!--android:layout_width="80dp"-->
+        <!--android:layout_height="80dp"-->
+        <!--android:id="@+id/btn_live"-->
+        <!--android:layout_marginRight="25dp"-->
+        <!--android:background="@drawable/screen_border"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_alignParentRight="true"-->
+        <!--android:layout_alignParentEnd="true"-->
+        <!--android:layout_marginEnd="25dp"-->
+        <!--android:layout_marginBottom="14dp" />-->
+
+
+    <android.support.design.widget.FloatingActionButton
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:layout_marginRight="11dp"
-        android:background="@drawable/screen_border"
+        android:layout_marginRight="25dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="15dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="11dp"
-        android:layout_marginBottom="14dp" />
+        android:id="@+id/btn_live"
+        android:src="@mipmap/ic_icon"/>
 
 </RelativeLayout>

@@ -4,15 +4,24 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -53,6 +62,8 @@ import org.jivesoftware.smack.roster.RosterListener;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.iqregister.AccountManager;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -62,10 +73,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private View rootView;
-    private Button btnLive;
+    private FloatingActionButton btnLive;
 
     private GoogleApiClient mGoogleApiClient;
-    private SignInButton btnSignIn;
+    private SignInButton btnLoginGoogle;
+
+    private LoginButton btnLoginFacebook;
+    private CallbackManager callbackManager;
 
     private LocalStorage localStorage;
 
@@ -74,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getApplicationContext());
+
         setContentView(R.layout.activity_main);
 
         initView();
@@ -142,6 +158,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 Toast.makeText(rootView.getContext(), rootView.getResources()
                         .getString(R.string.connection_error_message), Toast.LENGTH_SHORT).show();
             }
+        } else {
+            callbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -152,8 +170,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     private void initView() {
         rootView = findViewById(android.R.id.content);
-        btnLive = (Button) findViewById(R.id.btn_live);
-        btnSignIn = (SignInButton) rootView.findViewById(R.id.btn_sign_in_gmail);
+        btnLive = (FloatingActionButton) findViewById(R.id.btn_live);
+        btnLoginGoogle = (SignInButton) rootView.findViewById(R.id.btn_sign_in_gmail);
+        btnLoginFacebook = (LoginButton)findViewById(R.id.btn_login_facebook);
     }
 
     private void initListener() {
@@ -164,13 +183,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             }
         });
 
-        btnSignIn.setOnClickListener(new View.OnClickListener() {
+        btnLoginGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 signIn();
             }
         });
-
     }
 
     private void initVariables() {
@@ -178,10 +196,61 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
     private void initValue() {
-        initLogin();
+        initLoginGoogle();
+        initLoginFacebook();
     }
 
-    private void initLogin() {
+    private void initLoginFacebook() {
+        callbackManager = CallbackManager.Factory.create();
+        btnLoginFacebook.setReadPermissions("email", "public_profile");
+
+        btnLoginFacebook.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                handleLoginFacebookResult(loginResult);
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(FacebookException e) {
+                Toast.makeText(rootView.getContext(), rootView.getResources()
+                        .getString(R.string.connection_error_message), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void handleLoginFacebookResult(final LoginResult loginResult) {
+        GraphRequest request = GraphRequest.newMeRequest(
+                loginResult.getAccessToken(),
+                new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        try {
+                            String email = response.getJSONObject().getString("email");
+                            String firstName = response.getJSONObject().getString("first_name");
+                            String lastName = response.getJSONObject().getString("last_name");
+                            String gender = response.getJSONObject().getString("gender");
+                            String idUser = loginResult.getAccessToken().getUserId();
+                            String urlPhoto = "https://graph.facebook.com/" + idUser + "/picture?type=large"; // Imagem pequena
+                            String fullname = firstName + " " + lastName;
+
+                            registerUser(fullname, email, idUser, urlPhoto);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "id,email,first_name,last_name,gender");
+        request.setParameters(parameters);
+        request.executeAsync();
+    }
+
+    private void initLoginGoogle() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
@@ -192,12 +261,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 .build();
 
         if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
-            btnSignIn.setVisibility(View.GONE);
+            btnLoginGoogle.setVisibility(View.GONE);
         } else {
             localStorage.addToStorage(LocalStorage.USER, null);
         }
-        btnSignIn.setSize(SignInButton.SIZE_STANDARD);
-        btnSignIn.setScopes(gso.getScopeArray());
+        btnLoginGoogle.setSize(SignInButton.SIZE_STANDARD);
+        btnLoginGoogle.setScopes(gso.getScopeArray());
     }
 
     private void signIn() {
@@ -222,17 +291,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             Log.d(TAG, "Primeira parte email: " + email.substring(0, email.lastIndexOf("@")));
 
 
-            User user = new User(fullname, email, idUser, urlPhoto);
-            localStorage.addToStorage(LocalStorage.USER, user);
-
-            String username = email.substring(0, email.lastIndexOf("@"));
-            MyLoginTask task = new MyLoginTask(username, idUser);
-            task.execute("");
-
-            startActivity(new Intent(getApplicationContext(), PlayerActivity.class));
+            registerUser(fullname, email, idUser, urlPhoto);
         } else {
             // Signed out, show unauthenticated UI.
         }
+    }
+
+    private void registerUser(String fullname, String email, String idUser, String urlPhoto) {
+        User user = new User(fullname, email, idUser, urlPhoto);
+        localStorage.addToStorage(LocalStorage.USER, user);
+
+        String username = email.substring(0, email.lastIndexOf("@"));
+        MyLoginTask task = new MyLoginTask(username, idUser);
+        task.execute("");
+
+        startActivity(new Intent(getApplicationContext(), PlayerActivity.class));
     }
 
     public void signOut() {
@@ -245,6 +318,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                             finish();
                         }
                     });
+        }
+
+        if (LoginManager.getInstance() != null) {
+            LoginManager.getInstance().logOut();
         }
     }
 
