@@ -335,26 +335,38 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
             try {
                 con1.connect();
 
-                AccountManager accountManager = AccountManager.getInstance(con1);
+                con1.login("admin", "admin");
 
-                if (accountManager.supportsAccountCreation()) {
-                    try {
-                        accountManager.createAccount(username, password);
-                    } catch (XMPPException ex) {
-                        Log.d(TAG, "Erro ao criar conta");
-                    }
+                if (con1.isAuthenticated()) {
+                    AccountManager accountManager = AccountManager.getInstance(con1);
+                    accountManager.sensitiveOperationOverInsecureConnection(true);
+                    accountManager.createAccount(username, password);
+                    con1.disconnect();
+                    // con1.connect();
+                    // The account has been created, so we can now login
+                    con1.login(username, password);
+                }
 
-                }
-                else{
-                    Log.d(TAG, "Server doesn't support creating new accounts");
-                }
-                //   accountManager.sensitiveOperationOverInsecureConnection(true);
-                // accountManager.createAccount(username + "@" + C.DOMAIN, password);   // Skipping optional fields like email, first name, last name, etc..
-
-                if (con1.isConnected()) {
-                    Log.d(TAG, "Connection done");
-                }
-                con1.login();
+//                AccountManager accountManager = AccountManager.getInstance(con1);
+//
+//                if (accountManager.supportsAccountCreation()) {
+//                    try {
+//                        accountManager.createAccount(username, password);
+//                    } catch (XMPPException ex) {
+//                        Log.d(TAG, "Erro ao criar conta");
+//                    }
+//
+//                }
+//                else{
+//                    Log.d(TAG, "Server doesn't support creating new accounts");
+//                }
+//                //   accountManager.sensitiveOperationOverInsecureConnection(true);
+//                // accountManager.createAccount(username + "@" + C.DOMAIN, password);   // Skipping optional fields like email, first name, last name, etc..
+//
+//                if (con1.isConnected()) {
+//                    Log.d(TAG, "Connection done");
+//                }
+//                con1.login();
 
                 if (con1.isAuthenticated()) {
                     Log.d(TAG, "Authentication done");
@@ -384,38 +396,38 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
                 Log.d(TAG, e.toString());
             }
 
-            Roster roster = Roster.getInstanceFor(con1);
-            Collection<RosterEntry> entries = roster.getEntries();
-            for (RosterEntry entry : entries) {
-                System.out.println("Entry roster: " + entry);
-            }
-
-            roster.addRosterListener(new RosterListener() {
-                public void entriesDeleted(Collection<String> addresses) {}
-
-                @Override
-                public void entriesAdded(Collection<String> addresses) {}
-
-                public void entriesUpdated(Collection<String> addresses) {}
-                public void presenceChanged(Presence presence) {
-                    System.out.println("Presence changed: " + presence.getFrom() + " " + presence);
-                }
-            });
-
-            StanzaFilter filter = new AndFilter(new StanzaTypeFilter(Message.class), new FromMatchesFilter("teste1@myserver.com", true));
-            PacketCollector myCollector = con1.createPacketCollector(filter);
-
-            StanzaListener myListener = new StanzaListener() {
-                @Override
-                public void processPacket(Stanza packet) throws SmackException.NotConnectedException {
-
-                }
-
-                public void processStanza(Stanza stanza) {
-                    // Do something with the incoming stanza here._
-                }
-            };
-            con1.addAsyncStanzaListener(myListener, filter);
+//            Roster roster = Roster.getInstanceFor(con1);
+//            Collection<RosterEntry> entries = roster.getEntries();
+//            for (RosterEntry entry : entries) {
+//                System.out.println("Entry roster: " + entry);
+//            }
+//
+//            roster.addRosterListener(new RosterListener() {
+//                public void entriesDeleted(Collection<String> addresses) {}
+//
+//                @Override
+//                public void entriesAdded(Collection<String> addresses) {}
+//
+//                public void entriesUpdated(Collection<String> addresses) {}
+//                public void presenceChanged(Presence presence) {
+//                    System.out.println("Presence changed: " + presence.getFrom() + " " + presence);
+//                }
+//            });
+//
+//            StanzaFilter filter = new AndFilter(new StanzaTypeFilter(Message.class), new FromMatchesFilter("teste1@myserver.com", true));
+//            PacketCollector myCollector = con1.createPacketCollector(filter);
+//
+//            StanzaListener myListener = new StanzaListener() {
+//                @Override
+//                public void processPacket(Stanza packet) throws SmackException.NotConnectedException {
+//
+//                }
+//
+//                public void processStanza(Stanza stanza) {
+//                    // Do something with the incoming stanza here._
+//                }
+//            };
+//            con1.addAsyncStanzaListener(myListener, filter);
 
             return "";
         }
