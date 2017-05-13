@@ -29,7 +29,12 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     //noinspection GradleCompatible
+}
+
+
+dependencies {
     compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:design:25.3.1'
     compile 'com.google.android.exoplayer:exoplayer:r2.1.1'
     compile 'com.google.code.gson:gson:2.7'
     compile 'com.firebaseui:firebase-ui:0.6.2'
@@ -42,8 +47,21 @@ dependencies {
     compile 'org.igniterealtime.smack:smack-tcp:4.1.0'
     compile 'org.igniterealtime.smack:smack-android-extensions:4.1.0'
     compile 'com.facebook.android:facebook-android-sdk:4.7.0'
-
+    compile 'com.android.support:support-v4:25.3.1'
     testCompile 'junit:junit:4.12'
+
     compile files('libs/vodplayer.jar')
 }
 apply plugin: 'com.google.gms.google-services'
+dependencies {
+    compile 'com.android.support:support-v4:25.+'
+}
+dependencies {
+    compile 'com.android.support:support-v4:25.+'
+}
+dependencies {
+    compile 'com.android.support:support-v4:25.+'
+}
+dependencies {
+    compile 'com.android.support:support-v4:25.+'
+}

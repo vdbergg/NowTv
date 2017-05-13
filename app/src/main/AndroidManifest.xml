@@ -15,10 +15,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".activities.MainActivity">
+            android:name=".activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
-        <activity android:name=".activities.PlayerActivity"
-            android:configChanges="orientation|screenSize"/>
+
+        <activity
+            android:name=".activities.PlayerActivity"></activity>
 
         <activity android:name=".activities.SplashActivity">
             <intent-filter>

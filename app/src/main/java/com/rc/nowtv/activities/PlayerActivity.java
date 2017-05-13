@@ -53,7 +53,7 @@ public class PlayerActivity extends AppCompatActivity {
     private ImageView imgShowChat;
 
     private EmojiconEditText emojiconEditText;
-    private ImageView emojiButton,submitButton;
+    private ImageView emojiButton, submitButton;
     private EmojIconActions emojIconActions;
 
     private FirebaseListAdapter<ChatMessage> adapter;
@@ -80,10 +80,10 @@ public class PlayerActivity extends AppCompatActivity {
         layoutChat = (RelativeLayout) findViewById(R.id.layout_chat);
         listOfMessage = (ListView) findViewById(R.id.list_of_message);
 
-        emojiButton = (ImageView)findViewById(R.id.emoji_button);
-        submitButton = (ImageView)findViewById(R.id.submit_button);
-        emojiconEditText = (EmojiconEditText)findViewById(R.id.emojicon_edit_text);
-        emojIconActions = new EmojIconActions(getApplicationContext(),rootView,emojiButton,emojiconEditText);
+        emojiButton = (ImageView) findViewById(R.id.emoji_button);
+        submitButton = (ImageView) findViewById(R.id.submit_button);
+        emojiconEditText = (EmojiconEditText) findViewById(R.id.emojicon_edit_text);
+        emojIconActions = new EmojIconActions(getApplicationContext(), rootView, emojiButton, emojiconEditText);
         emojIconActions.ShowEmojicon();
 
         localStorage = LocalStorage.getInstance(getApplicationContext());
@@ -171,7 +171,7 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     private void displayChatMessage() {
-        Log.d(TAG, FirebaseDatabase.getInstance().getReference()  != null ?
+        Log.d(TAG, FirebaseDatabase.getInstance().getReference() != null ?
                 FirebaseDatabase.getInstance().getReference().toString() : "FirebaseDatabase é nulo!");
 
         adapter = new FirebaseListAdapter<ChatMessage>(this, ChatMessage.class, R.layout.list_item,
@@ -194,14 +194,14 @@ public class PlayerActivity extends AppCompatActivity {
                         .placeholder(R.mipmap.ic_person_black_24dp)
                         .into(new BitmapImageViewTarget(photoUser) {
 
-                    @Override
-                    protected void setResource(Bitmap resource) {
-                        RoundedBitmapDrawable circularBitmapDrawable =
-                                RoundedBitmapDrawableFactory.create(getResources(), resource);
-                        circularBitmapDrawable.setCircular(true);
-                        photoUser.setImageDrawable(circularBitmapDrawable);
-                    }
-                });
+                            @Override
+                            protected void setResource(Bitmap resource) {
+                                RoundedBitmapDrawable circularBitmapDrawable =
+                                        RoundedBitmapDrawableFactory.create(getResources(), resource);
+                                circularBitmapDrawable.setCircular(true);
+                                photoUser.setImageDrawable(circularBitmapDrawable);
+                            }
+                        });
 
                 messageText.setText(model.getMessageText());
                 messageUser.setText(model.getUsername());
@@ -234,19 +234,21 @@ public class PlayerActivity extends AppCompatActivity {
 
     public void scrollToLast() {
         listOfMessage.clearFocus();
-        listOfMessage.setSelection(adapter.getCount()-1);
+        listOfMessage.setSelection(adapter.getCount() - 1);
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        if (vodPlayer != null && vodPlayer.getExoPlayer() != null) vodPlayer.getExoPlayer().release();
+        if (vodPlayer != null && vodPlayer.getExoPlayer() != null)
+            vodPlayer.getExoPlayer().release();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (vodPlayer != null && vodPlayer.getExoPlayer() != null) vodPlayer.getExoPlayer().release();
+        if (vodPlayer != null && vodPlayer.getExoPlayer() != null)
+            vodPlayer.getExoPlayer().release();
     }
 
     @Override

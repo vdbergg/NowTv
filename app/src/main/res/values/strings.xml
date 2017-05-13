@@ -9,4 +9,7 @@
     <string name="live_title">Bate-papo ao vivo</string>
     <string name="welcome">Bem-vindo</string>
     <string name="warning_interactions">É necessário fazer login</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
