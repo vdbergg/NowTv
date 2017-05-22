@@ -4,6 +4,8 @@ package com.rc.nowtv.fragments;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -39,9 +41,11 @@ import com.rc.nowtv.utils.LocalStorage;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.PacketCollector;
+import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.StanzaListener;
+import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat.Chat;
 import org.jivesoftware.smack.chat.ChatManager;
@@ -49,17 +53,22 @@ import org.jivesoftware.smack.chat.ChatManagerListener;
 import org.jivesoftware.smack.chat.ChatMessageListener;
 import org.jivesoftware.smack.filter.AndFilter;
 import org.jivesoftware.smack.filter.FromMatchesFilter;
-import org.jivesoftware.smack.filter.StanzaFilter;
-import org.jivesoftware.smack.filter.StanzaTypeFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Stanza;
+import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.RosterListener;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.iqregister.AccountManager;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
+import org.jivesoftware.smackx.receipts.ReceiptReceivedListener;
+import org.jivesoftware.smackx.search.ReportedData;
+import org.jivesoftware.smackx.search.UserSearchManager;
+import org.jivesoftware.smackx.xdata.Form;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -67,11 +76,12 @@ import java.io.IOException;
 import java.util.Collection;
 
 import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
+import static org.jivesoftware.smackx.pubsub.ChildrenAssociationPolicy.owners;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class LoginFragment extends Fragment implements GoogleApiClient.OnConnectionFailedListener {
+public class LoginFragment extends Fragment implements GoogleApiClient.OnConnectionFailedListener, ConnectionListener {
     private View rootView;
     private FloatingActionButton btnLive;
 
@@ -80,6 +90,12 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
 
     private LoginButton btnLoginFacebook;
     private CallbackManager callbackManager;
+    private XMPPTCPConnection connection;
+
+    private boolean authenticated;
+    private boolean connected;
+    private boolean chat_created;
+    private boolean loggedin;
 
     private LocalStorage localStorage;
 
@@ -287,8 +303,10 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
         localStorage.addToStorage(LocalStorage.USER, user);
 
         String username = email.substring(0, email.lastIndexOf("@"));
-        MyLoginTask task = new MyLoginTask(username, idUser);
-        task.execute("");
+        new ConnectToXmppServer().execute();
+//        MyLoginTask task = new MyLoginTask(username, idUser);
+//        task.execute("");
+        //initializeConnection();
 
         Snackbar.make(rootView, "Logado com sucesso!!", Snackbar.LENGTH_SHORT).show();
     }
@@ -309,132 +327,211 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
         }
     }
 
-    private class MyLoginTask extends AsyncTask<String, String, String> {
-        private String username;
-        private String password;
 
-        public MyLoginTask(String username, String password) {
-            this.username = username;
-            this.password = password;
-        }
+    @Override
+    public void authenticated(XMPPConnection arg0, boolean arg1) {
+        Log.i(TAG, "Authenticated");
+    }
 
-        @Override
-        protected String doInBackground(String... strings) {
+    @Override
+    public void connected(XMPPConnection arg0) {
+        Log.i(TAG, "Connected");
+        try {
+            SASLAuthentication.unBlacklistSASLMechanism("PLAIN");
+            SASLAuthentication.blacklistSASLMechanism("DIGEST-MD5");
 
-            XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
-                    //.setUsernameAndPassword("berg", "041097")
-                    .setHost(C.URL_SERVER)
-                    .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
-                    .setServiceName(C.DOMAIN)
-                    .setPort(5222)
-                    .setDebuggerEnabled(true)
-                    .build();
+            if (!authenticated)
+                connection.login("admin", "adminrc");
+            else {
+                if (!connection.isAuthenticated()) {
+                    User user = localStorage.getObjectFromStorage(LocalStorage.USER, User.class);
 
-            AbstractXMPPConnection con1 = new XMPPTCPConnection(config);
-
-            try {
-                con1.connect();
-
-                con1.login("admin", "admin");
-
-                if (con1.isAuthenticated()) {
-                    AccountManager accountManager = AccountManager.getInstance(con1);
-                    accountManager.sensitiveOperationOverInsecureConnection(true);
-                    accountManager.createAccount(username, password);
-                    con1.disconnect();
-                    // con1.connect();
-                    // The account has been created, so we can now login
-                    con1.login(username, password);
+                    String username = user.getEmail().substring(0, user.getEmail().lastIndexOf("@"));
+                    connection.login(username, user.getIdUser());
+                    Presence presence = new Presence(Presence.Type.available);
+                    connection.sendPacket(presence);
                 }
-
-//                AccountManager accountManager = AccountManager.getInstance(con1);
-//
-//                if (accountManager.supportsAccountCreation()) {
-//                    try {
-//                        accountManager.createAccount(username, password);
-//                    } catch (XMPPException ex) {
-//                        Log.d(TAG, "Erro ao criar conta");
-//                    }
-//
-//                }
-//                else{
-//                    Log.d(TAG, "Server doesn't support creating new accounts");
-//                }
-//                //   accountManager.sensitiveOperationOverInsecureConnection(true);
-//                // accountManager.createAccount(username + "@" + C.DOMAIN, password);   // Skipping optional fields like email, first name, last name, etc..
-//
-//                if (con1.isConnected()) {
-//                    Log.d(TAG, "Connection done");
-//                }
-//                con1.login();
-
-                if (con1.isAuthenticated()) {
-                    Log.d(TAG, "Authentication done");
-
-                    final ChatManager chatManager = ChatManager.getInstanceFor(con1);
-                    chatManager.addChatListener(new ChatManagerListener() {
-                        @Override
-                        public void chatCreated(Chat chat, boolean createdLocally) {
-                            chat.addMessageListener(new ChatMessageListener() {
-                                @Override
-                                public void processMessage(Chat chat, Message message) {
-                                    System.out.println("Received message: " + (message != null? message.getBody() : "NULL"));
-                                    try {
-                                        chatManager.getThreadChat(chat.getThreadID()).sendMessage(new Message(message.getFrom(), "Resposta de retorno!"));
-                                    } catch (SmackException.NotConnectedException e) {
-                                        e.printStackTrace();
-                                        Log.d(TAG, "Erro ao responder mensagem");
-                                    }
-                                }
-                            });
-
-                            Log.d(TAG, chat.toString());
-                        }
-                    });
-                }
-            } catch (SmackException | IOException | XMPPException e) {
-                Log.d(TAG, e.toString());
             }
 
-//            Roster roster = Roster.getInstanceFor(con1);
-//            Collection<RosterEntry> entries = roster.getEntries();
-//            for (RosterEntry entry : entries) {
-//                System.out.println("Entry roster: " + entry);
-//            }
-//
-//            roster.addRosterListener(new RosterListener() {
-//                public void entriesDeleted(Collection<String> addresses) {}
-//
-//                @Override
-//                public void entriesAdded(Collection<String> addresses) {}
-//
-//                public void entriesUpdated(Collection<String> addresses) {}
-//                public void presenceChanged(Presence presence) {
-//                    System.out.println("Presence changed: " + presence.getFrom() + " " + presence);
-//                }
-//            });
-//
-//            StanzaFilter filter = new AndFilter(new StanzaTypeFilter(Message.class), new FromMatchesFilter("teste1@myserver.com", true));
-//            PacketCollector myCollector = con1.createPacketCollector(filter);
-//
-//            StanzaListener myListener = new StanzaListener() {
-//                @Override
-//                public void processPacket(Stanza packet) throws SmackException.NotConnectedException {
-//
-//                }
-//
-//                public void processStanza(Stanza stanza) {
-//                    // Do something with the incoming stanza here._
-//                }
-//            };
-//            con1.addAsyncStanzaListener(myListener, filter);
+            if (connection.isAuthenticated() && !authenticated) {
+                authenticated = true;
+//                Toast.makeText(rootView.getContext(), "Conectado e logado ao servidor OPENFIRE", Toast.LENGTH_SHORT).show();
+                AccountManager accountManager = AccountManager.getInstance(connection);
+//                accountManager.sensitiveOperationOverInsecureConnection(true);
+                User user = localStorage.getObjectFromStorage(LocalStorage.USER, User.class);
 
-            return "";
+                String username = user.getEmail().substring(0, user.getEmail().lastIndexOf("@"));
+                accountManager.createAccount(username, user.getIdUser());
+                connection.disconnect();
+                connection.connect();
+            } else if (connection.isAuthenticated() && authenticated) {
+                createChat(connection);
+            }
+
+        } catch (XMPPException | SmackException | IOException e) {
+            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
+        }
+    }
+
+    @Override
+    public void connectionClosed() {
+        Log.i(TAG, "Connection closed");
+    }
+
+    @Override
+    public void connectionClosedOnError(Exception arg0) {
+        Log.i(TAG, "Connection closed on error");
+    }
+
+    @Override
+    public void reconnectingIn(int arg0) {
+        Log.i(TAG, "Reconnecting in");
+    }
+
+    @Override
+    public void reconnectionFailed(Exception arg0) {
+        Log.i(TAG, "Reconnection failed");
+    }
+
+    @Override
+    public void reconnectionSuccessful() {
+        Log.i(TAG, "Reconnection successful");
+    }
+
+    private class ConnectToXmppServer extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Log.i(TAG, "Connecting to xmpp server started...");
         }
 
         @Override
-        protected void onPostExecute(String s) {
+        protected Void doInBackground(Void... params) {
+            try {
+                XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration
+                        .builder()
+                        .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
+                        .setServiceName(C.DOMAIN)
+                        .setHost(C.URL_SERVER)
+                        .setPort(5222)
+                        .setCompressionEnabled(false).build();
+                connection = new XMPPTCPConnection(config);
+                connection.setPacketReplyTimeout(1000);
+                connection.addConnectionListener(LoginFragment.this);
+                connection.connect();
+            } catch (XMPPException | SmackException | IOException e) {
+                e.printStackTrace();
+                Log.e(TAG, e.getMessage());
+            }
 
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            Log.i(TAG, "Connecting to xmpp server finished...");
+        }
+    }
+
+//    private class MyLoginTask extends AsyncTask<String, String, String> {
+//        private String username;
+//        private String password;
+//
+//        public MyLoginTask(String username, String password) {
+//            this.username = username;
+//            this.password = password;
+//        }
+//
+//        @Override
+//        protected String doInBackground(String... strings) {
+//
+//            XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
+//                    //.setUsernameAndPassword("berg", "041097")
+//                    .setHost(C.URL_SERVER)
+//                    .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
+//                    .setServiceName(C.DOMAIN)
+//                    .setPort(5222)
+//                    .setDebuggerEnabled(true)
+//                    .build();
+//
+//            AbstractXMPPConnection con1 = new XMPPTCPConnection(config);
+//
+//            try {
+//                con1.connect();
+//
+//                con1.login("admin", "admin");
+//
+//                if (con1.isAuthenticated()) {
+//                    AccountManager accountManager = AccountManager.getInstance(con1);
+////                    accountManager.sensitiveOperationOverInsecureConnection(true);
+//                    accountManager.createAccount(username, password);
+//                    con1.disconnect();
+//                    con1.connect();
+//                    // The account has been created, so we can now login
+//                    con1.login(username, password);
+//
+//                    Presence presence = new Presence(Presence.Type.available);
+//                    con1.sendPacket(presence);
+//                }
+//
+//                if (con1.isAuthenticated()) {
+//                    Log.d(TAG, "Authentication done");
+//
+//                    createChat(con1);
+//                }
+//            } catch (SmackException | IOException | XMPPException e) {
+//                Log.d(TAG, e.getMessage());
+//                if(e.getMessage().equals("XMPPError: conflict - cancel")) {
+//                    con1.disconnect();
+//                    try {
+////                        if (!con1.isConnected())
+////                            con1.connect();
+//
+//                        con1.login(username, password);
+//
+//                        createChat(con1);
+//                    } catch (SmackException | IOException | XMPPException e2) {
+//                        Log.d(TAG, e2.toString());
+//                    }
+//                }
+//            }
+//
+//            return "";
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String s) {
+//
+//        }
+//    }
+
+    private void createChat(AbstractXMPPConnection con1) {
+        if (con1.isAuthenticated()) {
+            Log.d(TAG, "Authentication done");
+
+            final ChatManager chatManager = ChatManager.getInstanceFor(con1);
+            chatManager.addChatListener(new ChatManagerListener() {
+                @Override
+                public void chatCreated(Chat chat, boolean createdLocally) {
+                    chat.addMessageListener(new ChatMessageListener() {
+                        @Override
+                        public void processMessage(Chat chat, Message message) {
+                            System.out.println("Received message: " + (message != null? message.getBody() : "NULL"));
+                            try {
+                                chatManager.getThreadChat(chat.getThreadID()).sendMessage(new Message(message.getFrom(), "Resposta de retorno!"));
+                            } catch (SmackException.NotConnectedException e) {
+                                e.printStackTrace();
+                                Log.d(TAG, "Erro ao responder mensagem");
+                            }
+                        }
+                    });
+
+                    Log.d(TAG, chat.toString());
+                }
+            });
         }
     }
 
