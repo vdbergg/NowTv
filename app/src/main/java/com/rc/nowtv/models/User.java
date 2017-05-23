@@ -10,12 +10,22 @@ public class User {
     private String email;
     private String idUser;
     private String urlPhoto;
+    private String username;
 
     public User(String name, String email, String idUser, String urlPhoto) {
         this.name = name;
         this.email = email;
         this.idUser = idUser;
         this.urlPhoto = urlPhoto;
+        this.username = email.substring(0, email.lastIndexOf("@"));
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getName() {

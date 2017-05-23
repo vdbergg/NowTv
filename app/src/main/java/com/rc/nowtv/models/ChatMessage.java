@@ -25,6 +25,10 @@ public class ChatMessage {
 
     }
 
+    public ChatMessage(String body) {
+        this.messageText = body;
+    }
+
     public String getMessageText() {
         return messageText;
     }

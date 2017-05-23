@@ -25,11 +25,17 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.rc.nowtv.R;
+import com.rc.nowtv.adapters.ChatAdapter;
 import com.rc.nowtv.models.ChatMessage;
 import com.rc.nowtv.models.User;
 import com.rc.nowtv.utils.LocalStorage;
+import com.rc.nowtv.xmpp.MyXMPP;
+
+import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.XMPPException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
 import hani.momanii.supernova_emoji_library.Helper.EmojiconEditText;
@@ -57,6 +63,10 @@ public class PlayerActivity extends AppCompatActivity {
     private EmojIconActions emojIconActions;
 
     private FirebaseListAdapter<ChatMessage> adapter;
+    private ChatAdapter chatAdapter;
+    private ArrayList<ChatMessage> listMessages;
+
+    private MyXMPP myXMPP;
 
 
     @Override
@@ -67,6 +77,7 @@ public class PlayerActivity extends AppCompatActivity {
         initView();
         initListener();
         initVodPlayer();
+        initXMPPServer();
         initChat();
     }
 
@@ -111,9 +122,16 @@ public class PlayerActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (emojiconEditText.getText().toString().length() > 0) {
 
-                    FirebaseDatabase.getInstance().getReference().push().setValue(
-                            new ChatMessage(emojiconEditText.getText().toString(), user.getName(), user.getUrlPhoto()));
-
+                    try {
+                        myXMPP.sendMessage(emojiconEditText.getText().toString());
+                    } catch (XMPPException e) {
+                        e.printStackTrace();
+                    } catch (SmackException.NotConnectedException e) {
+                        e.printStackTrace();
+                    }
+//                    FirebaseDatabase.getInstance().getReference().push().setValue(
+//                            new ChatMessage(emojiconEditText.getText().toString(), user.getName(), user.getUrlPhoto()));
+//
                     emojiconEditText.setText("");
                     emojiconEditText.requestFocus();
                 }
@@ -132,8 +150,37 @@ public class PlayerActivity extends AppCompatActivity {
         });
     }
 
+    private void initXMPPServer() {
+        myXMPP = MyXMPP.getInstance(getApplicationContext(), com.rc.nowtv.utils.C.DOMAIN,
+                com.rc.nowtv.utils.C.URL_SERVER, user.getUsername(), user.getIdUser(),
+                new MyXMPP.ReceivedMessages() {
+                    @Override
+                    public void onReceived(final ChatMessage chatMessage) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshAdapter(chatMessage);
+                            }
+                        });
+                    }
+                });
+
+        listMessages = myXMPP.getOldMessages();
+        chatAdapter = new ChatAdapter(getApplicationContext(), 0, listMessages);
+
+        listOfMessage.setAdapter(chatAdapter);
+        scrollToLast();
+    }
+
+    private void refreshAdapter(ChatMessage chatMessage) {
+        listMessages.add(chatMessage);
+        chatAdapter.add(chatMessage);
+        chatAdapter.notifyDataSetChanged();
+    }
+
+
     private void initChat() {
-        displayChatMessage();
+        //displayChatMessage();
     }
 
     private void initVodPlayer() {
@@ -234,7 +281,7 @@ public class PlayerActivity extends AppCompatActivity {
 
     public void scrollToLast() {
         listOfMessage.clearFocus();
-        listOfMessage.setSelection(adapter.getCount() - 1);
+        listOfMessage.setSelection(chatAdapter.getCount() - 1);
     }
 
     @Override
