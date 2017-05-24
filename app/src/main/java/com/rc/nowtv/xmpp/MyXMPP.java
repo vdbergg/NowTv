@@ -110,6 +110,7 @@ public class MyXMPP implements ConnectionListener {
                         .setServiceName(serviceName)
                         .setHost(hostAddress)
                         .setPort(5222)
+                        .setDebuggerEnabled(true)
                         .setCompressionEnabled(false).build();
                 connection = new XMPPTCPConnection(config);
                 connection.setPacketReplyTimeout(1000);
@@ -245,7 +246,7 @@ public class MyXMPP implements ConnectionListener {
             });
 
             if (!mchat.isJoined()) {
-                mchat.join(username/*, "", history, connection.getPacketReplyTimeout()*/);
+                mchat.join(username, "redes2017"/*, "", history, connection.getPacketReplyTimeout()*/);
                 System.out.println("The conference room success....");
             }
             //mchat.grantVoice(username);
@@ -299,12 +300,19 @@ public class MyXMPP implements ConnectionListener {
 //    }
 
     public void sendMessage(String chatMessage) {
-        MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
-        mchat = mchat == null? manager.getMultiUserChat("redes2017@conference." + C.GROUP_CHAT_SERVER) : mchat;
+//        MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
+//        mchat = mchat == null? manager.getMultiUserChat("redes2017@conference." + C.GROUP_CHAT_SERVER) : mchat;
 
-        if (!mchat.isJoined())
+
+        Message msg = new Message();
+        msg.setType(Message.Type.groupchat);
+        msg.setTo("redes2017@" + C.GROUP_CHAT_SERVER);
+        msg.setBody(chatMessage);
+
+
+        if (!mchat.isJoined()) {
             try {
-                mchat.createOrJoin(username);
+                mchat.join(username, "redes2017");
             } catch (SmackException.NoResponseException e) {
                 e.printStackTrace();
             } catch (XMPPException.XMPPErrorException e) {
@@ -314,12 +322,14 @@ public class MyXMPP implements ConnectionListener {
             } catch (SmackException e) {
                 e.printStackTrace();
             }
+        }
 
         Message message = new Message();
         message.setBody(chatMessage);
         message.setType(Message.Type.groupchat);
 
         try {
+            connection.sendPacket(msg);
             mchat.sendMessage(message);
             Log.d(TAG, "Mensagem enviada com sucesso!");
         } catch (XMPPException e) {
