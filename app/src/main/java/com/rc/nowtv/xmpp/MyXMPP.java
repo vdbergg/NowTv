@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.rc.nowtv.models.ChatMessage;
 import com.rc.nowtv.models.User;
 import com.rc.nowtv.utils.C;
@@ -16,6 +17,7 @@ import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.chat.Chat;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.RosterEntry;
@@ -33,6 +35,7 @@ import org.jivesoftware.smackx.offline.OfflineMessageManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -216,8 +219,12 @@ public class MyXMPP implements ConnectionListener {
             mchat = mchatManager.getMultiUserChat(group + "@" + C.GROUP_CHAT_SERVER);
 
 //            DiscussionHistory history = new DiscussionHistory();
-//            history.setMaxStanzas(0);
-            //history.setSince(new Date());
+//            history.setMaxStanzas(5);
+//            history.setSince(new Date());
+
+            boolean supports = MultiUserChatManager.getInstanceFor(connection).isServiceEnabled("vdbdgf@myserver.rc");
+            boolean supports2 = MultiUserChatManager.getInstanceFor(connection).isServiceEnabled("berg@myserver.rc");
+            Log.d(TAG, "Vdbdgf: " + supports + " berg: " + supports2);
 
             mchat.addMessageListener(new MessageListener() {
                 @Override
@@ -237,10 +244,12 @@ public class MyXMPP implements ConnectionListener {
                 }
             });
 
-           // if (!mchat.isJoined()) {
-                mchat.createOrJoin(username/*, "", history, connection.getPacketReplyTimeout()*/);
+            if (!mchat.isJoined()) {
+                mchat.join(username/*, "", history, connection.getPacketReplyTimeout()*/);
                 System.out.println("The conference room success....");
-            //}
+            }
+            //mchat.grantVoice(username);
+            mchat.grantMembership(username + "@" + C.GROUP_CHAT_SERVER);
 
             return true;
         } catch (SmackException e) {
@@ -281,12 +290,45 @@ public class MyXMPP implements ConnectionListener {
         return Entrieslist;
     }
 
-    public void sendMessage(String message) throws XMPPException, SmackException.NotConnectedException {
-        if (mchat != null ) {
+//    public void sendMessage(String message) throws XMPPException, SmackException.NotConnectedException {
+//        if (mchat != null ) {
+//            mchat.sendMessage(message);
+//            Log.d(TAG, "mensagem enviada para grupo!!!");
+//        } else
+//            Log.d(TAG, "mChat eh nulo!!!");
+//    }
+
+    public void sendMessage(String chatMessage) {
+        MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
+        mchat = mchat == null? manager.getMultiUserChat("redes2017@conference." + C.GROUP_CHAT_SERVER) : mchat;
+
+        if (!mchat.isJoined())
+            try {
+                mchat.createOrJoin(username);
+            } catch (SmackException.NoResponseException e) {
+                e.printStackTrace();
+            } catch (XMPPException.XMPPErrorException e) {
+                e.printStackTrace();
+            } catch (SmackException.NotConnectedException e) {
+                e.printStackTrace();
+            } catch (SmackException e) {
+                e.printStackTrace();
+            }
+
+        Message message = new Message();
+        message.setBody(chatMessage);
+        message.setType(Message.Type.groupchat);
+
+        try {
             mchat.sendMessage(message);
-            Log.d(TAG, "mensagem enviada para grupo!!!");
-        } else
-            Log.d(TAG, "mChat eh nulo!!!");
+            Log.d(TAG, "Mensagem enviada com sucesso!");
+        } catch (XMPPException e) {
+            e.printStackTrace();
+            Log.d(TAG, e.toString());
+        } catch (SmackException.NotConnectedException e) {
+            e.printStackTrace();
+            Log.d(TAG, e.toString());
+        }
     }
 
     public interface ReceivedMessages {

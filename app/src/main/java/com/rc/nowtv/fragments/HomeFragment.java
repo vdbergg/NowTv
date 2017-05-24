@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.rc.nowtv.R;
 import com.rc.nowtv.adapters.VideoListAdapter;
 import com.rc.nowtv.models.Video;
+import com.rc.nowtv.utils.UtilDesign;
 
 import java.util.ArrayList;
 
@@ -61,6 +62,7 @@ public class HomeFragment extends Fragment {
 
         videoListAdapter = new VideoListAdapter(rootView.getContext(), listVideos);
         lvVideos.setAdapter(videoListAdapter);
+        UtilDesign.setListViewHeightBasedOnChildren(lvVideos);
 
     }
 

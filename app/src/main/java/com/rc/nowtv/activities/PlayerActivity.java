@@ -122,16 +122,13 @@ public class PlayerActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (emojiconEditText.getText().toString().length() > 0) {
 
-                    try {
-                        myXMPP.sendMessage(emojiconEditText.getText().toString());
-                    } catch (XMPPException e) {
-                        e.printStackTrace();
-                    } catch (SmackException.NotConnectedException e) {
-                        e.printStackTrace();
-                    }
-//                    FirebaseDatabase.getInstance().getReference().push().setValue(
+                    myXMPP.sendMessage(emojiconEditText.getText().toString());
+                    //                    FirebaseDatabase.getInstance().getReference().push().setValue(
 //                            new ChatMessage(emojiconEditText.getText().toString(), user.getName(), user.getUrlPhoto()));
-//
+
+                    Log.d("MyXMPP", "Conteúdo texto: " + emojiconEditText.getText());
+                    refreshAdapter(new ChatMessage(emojiconEditText.getText().toString(), user.getName(), null));
+
                     emojiconEditText.setText("");
                     emojiconEditText.requestFocus();
                 }
@@ -178,6 +175,7 @@ public class PlayerActivity extends AppCompatActivity {
         listMessages.add(chatMessage);
         chatAdapter.add(chatMessage);
         chatAdapter.notifyDataSetChanged();
+        scrollToLast();
     }
 
 

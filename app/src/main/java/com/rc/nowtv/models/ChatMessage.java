@@ -27,6 +27,7 @@ public class ChatMessage {
 
     public ChatMessage(String body) {
         this.messageText = body;
+        time = new Date().getTime();
     }
 
     public String getMessageText() {

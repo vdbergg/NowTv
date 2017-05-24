@@ -4,12 +4,22 @@
     android:layout_marginBottom="@dimen/activity_horizontal_margin"
     android:orientation="vertical">
 
-    <ListView
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/activity_horizontal_margin"
-        android:minHeight="8dp"
-        android:dividerHeight="8dp"
-        android:id="@+id/lv_videos"/>
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="@dimen/activity_horizontal_margin"
+                android:minHeight="8dp"
+                android:dividerHeight="8dp"
+                android:id="@+id/lv_videos"/>
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
 
 </LinearLayout>
