@@ -1,37 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:facebook="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/colorWhite"
-    android:layout_centerHorizontal="true"
+    android:orientation="vertical"
+    android:layout_gravity="center_vertical"
+    android:layout_centerInParent="true"
+    android:gravity="center_vertical"
     tools:context="com.rc.nowtv.activities.MainActivity">
 
 
-    <com.google.android.gms.common.SignInButton
+    <Button
         android:layout_width="match_parent"
-        android:layout_height="67dp"
-        android:id="@+id/btn_sign_in_gmail"
-        android:layout_centerInParent="true"
-        android:layout_marginLeft="22dp"
-        android:layout_marginRight="22dp"
-        android:layout_marginTop="300dp"
-        />
-
-    <com.facebook.login.widget.LoginButton
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:text="@string/facebook_login"
         android:id="@+id/btn_login_facebook"
-        android:layout_marginLeft="25dp"
-        android:layout_marginRight="25dp"
-        android:layout_marginTop="10dp"
-        android:paddingTop="20dp"
-        android:paddingBottom="20dp"
-        android:layout_below="@id/btn_sign_in_gmail"
-        facebook:com_facebook_confirm_logout="true"
-        facebook:com_facebook_tooltip_mode="never_display"
-        android:layout_centerHorizontal="true"/>
+        android:background="@drawable/facebook_button"
+        android:textColor="@color/colorWhite"
+        android:typeface="normal"
+        android:textAlignment="gravity"
+        android:drawableLeft="@drawable/ic_facebook"
+        android:drawablePadding="10dp"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:paddingLeft="12dp"
+        android:layout_marginBottom="10dp"
+        android:layout_gravity="left"
+        android:gravity="left|center_vertical" />
 
-</RelativeLayout>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:text="@string/google_login"
+        android:id="@+id/btn_sign_in_gmail"
+        android:background="@drawable/google_button"
+        android:textColor="@color/colorWhite"
+        android:typeface="normal"
+        android:textAlignment="gravity"
+        android:drawableLeft="@drawable/ic_google"
+        android:drawablePadding="10dp"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:paddingLeft="12dp"
+        android:gravity="left|center_vertical" />
+
+
+    <!--<com.google.android.gms.common.SignInButton-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="67dp"-->
+        <!--android:id="@+id/btn_sign_in_gmail"-->
+        <!--android:layout_centerInParent="true"-->
+        <!--android:layout_marginLeft="22dp"-->
+        <!--android:layout_marginRight="22dp"-->
+        <!--android:layout_marginTop="300dp"-->
+        <!--/>-->
+
+    <!--<com.facebook.login.widget.LoginButton-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/btn_login_facebook"-->
+        <!--android:layout_marginLeft="25dp"-->
+        <!--android:layout_marginRight="25dp"-->
+        <!--android:layout_marginTop="10dp"-->
+        <!--android:paddingTop="20dp"-->
+        <!--android:paddingBottom="20dp"-->
+        <!--android:layout_below="@id/btn_sign_in_gmail"-->
+        <!--facebook:com_facebook_confirm_logout="true"-->
+        <!--facebook:com_facebook_tooltip_mode="never_display"-->
+        <!--android:layout_centerHorizontal="true"/>-->
+
+</LinearLayout>

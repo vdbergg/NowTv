@@ -2,10 +2,7 @@ package com.rc.nowtv.fragments;
 
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -14,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.facebook.CallbackManager;
@@ -24,66 +22,26 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.rc.nowtv.R;
 import com.rc.nowtv.models.User;
-import com.rc.nowtv.utils.C;
 import com.rc.nowtv.utils.LocalStorage;
 
-import org.jivesoftware.smack.AbstractXMPPConnection;
-import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.ConnectionListener;
-import org.jivesoftware.smack.MessageListener;
-import org.jivesoftware.smack.PacketCollector;
-import org.jivesoftware.smack.SASLAuthentication;
-import org.jivesoftware.smack.SmackConfiguration;
-import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.chat.Chat;
-import org.jivesoftware.smack.chat.ChatManager;
-import org.jivesoftware.smack.chat.ChatManagerListener;
-import org.jivesoftware.smack.chat.ChatMessageListener;
-import org.jivesoftware.smack.filter.AndFilter;
-import org.jivesoftware.smack.filter.FromMatchesFilter;
-import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.packet.Stanza;
-import org.jivesoftware.smack.packet.XMPPError;
-import org.jivesoftware.smack.roster.Roster;
-import org.jivesoftware.smack.roster.RosterEntry;
-import org.jivesoftware.smack.roster.RosterListener;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
-import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
-import org.jivesoftware.smackx.iqregister.AccountManager;
-import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.jivesoftware.smackx.muc.MultiUserChatManager;
-import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
-import org.jivesoftware.smackx.receipts.ReceiptReceivedListener;
-import org.jivesoftware.smackx.search.ReportedData;
-import org.jivesoftware.smackx.search.UserSearchManager;
-import org.jivesoftware.smackx.xdata.Form;
-import org.jivesoftware.smackx.xdata.packet.DataForm;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 
 import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
-import static org.jivesoftware.smackx.pubsub.ChildrenAssociationPolicy.owners;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -93,9 +51,9 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
     private FloatingActionButton btnLive;
 
     private GoogleApiClient mGoogleApiClient;
-    private SignInButton btnLoginGoogle;
+    private Button btnLoginGoogle;
 
-    private LoginButton btnLoginFacebook;
+    private Button btnLoginFacebook;
     private CallbackManager callbackManager;
     private XMPPTCPConnection connection;
     private MultiUserChat mchat;
@@ -180,8 +138,8 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
 
     private void initView() {
 //        btnLive = (FloatingActionButton) rootView.findViewById(R.id.btn_live);
-        btnLoginGoogle = (SignInButton) rootView.findViewById(R.id.btn_sign_in_gmail);
-        btnLoginFacebook = (LoginButton)rootView.findViewById(R.id.btn_login_facebook);
+        btnLoginGoogle = (Button) rootView.findViewById(R.id.btn_sign_in_gmail);
+        btnLoginFacebook = (Button) rootView.findViewById(R.id.btn_login_facebook);
     }
 
     private void initListener() {
@@ -198,6 +156,13 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
                 signIn();
             }
         });
+
+        btnLoginFacebook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LoginManager.getInstance().logInWithReadPermissions(getActivity(), Arrays.asList("email", "public_profile"));
+            }
+        });
     }
 
     private void initVariables() {
@@ -211,9 +176,8 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
 
     private void initLoginFacebook() {
         callbackManager = CallbackManager.Factory.create();
-        btnLoginFacebook.setReadPermissions("email", "public_profile");
 
-        btnLoginFacebook.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 handleLoginFacebookResult(loginResult);
@@ -274,8 +238,6 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
         } else {
             localStorage.addToStorage(LocalStorage.USER, null);
         }
-        btnLoginGoogle.setSize(SignInButton.SIZE_STANDARD);
-        btnLoginGoogle.setScopes(gso.getScopeArray());
     }
 
     private void signIn() {

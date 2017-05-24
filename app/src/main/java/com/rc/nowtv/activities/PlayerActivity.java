@@ -151,25 +151,27 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     private void initXMPPServer() {
-        myXMPP = MyXMPP.getInstance(getApplicationContext(), com.rc.nowtv.utils.C.DOMAIN,
-                com.rc.nowtv.utils.C.URL_SERVER, user.getUsername(), user.getIdUser(),
-                new MyXMPP.ReceivedMessages() {
-                    @Override
-                    public void onReceived(final ChatMessage chatMessage) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                refreshAdapter(chatMessage);
-                            }
-                        });
-                    }
-                });
+        if (user != null) {
+            myXMPP = MyXMPP.getInstance(getApplicationContext(), com.rc.nowtv.utils.C.DOMAIN,
+                    com.rc.nowtv.utils.C.URL_SERVER, user.getUsername(), user.getIdUser(),
+                    new MyXMPP.ReceivedMessages() {
+                        @Override
+                        public void onReceived(final ChatMessage chatMessage) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    refreshAdapter(chatMessage);
+                                }
+                            });
+                        }
+                    });
 
-        listMessages = myXMPP.getOldMessages();
-        chatAdapter = new ChatAdapter(getApplicationContext(), 0, listMessages);
+            listMessages = myXMPP.getOldMessages();
+            chatAdapter = new ChatAdapter(getApplicationContext(), 0, listMessages);
 
-        listOfMessage.setAdapter(chatAdapter);
-        scrollToLast();
+            listOfMessage.setAdapter(chatAdapter);
+            scrollToLast();
+        }
     }
 
     private void refreshAdapter(ChatMessage chatMessage) {
