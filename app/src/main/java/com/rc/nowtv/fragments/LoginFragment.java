@@ -4,6 +4,8 @@ package com.rc.nowtv.fragments;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -39,9 +41,13 @@ import com.rc.nowtv.utils.LocalStorage;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.ConnectionListener;
+import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.PacketCollector;
+import org.jivesoftware.smack.SASLAuthentication;
+import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.StanzaListener;
+import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat.Chat;
 import org.jivesoftware.smack.chat.ChatManager;
@@ -49,24 +55,35 @@ import org.jivesoftware.smack.chat.ChatManagerListener;
 import org.jivesoftware.smack.chat.ChatMessageListener;
 import org.jivesoftware.smack.filter.AndFilter;
 import org.jivesoftware.smack.filter.FromMatchesFilter;
-import org.jivesoftware.smack.filter.StanzaFilter;
-import org.jivesoftware.smack.filter.StanzaTypeFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Stanza;
+import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.RosterListener;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.iqregister.AccountManager;
+import org.jivesoftware.smackx.muc.DiscussionHistory;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.MultiUserChatManager;
+import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
+import org.jivesoftware.smackx.receipts.ReceiptReceivedListener;
+import org.jivesoftware.smackx.search.ReportedData;
+import org.jivesoftware.smackx.search.UserSearchManager;
+import org.jivesoftware.smackx.xdata.Form;
+import org.jivesoftware.smackx.xdata.packet.DataForm;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
+import static org.jivesoftware.smackx.pubsub.ChildrenAssociationPolicy.owners;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -80,6 +97,13 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
 
     private LoginButton btnLoginFacebook;
     private CallbackManager callbackManager;
+    private XMPPTCPConnection connection;
+    private MultiUserChat mchat;
+
+    private boolean authenticated;
+    private boolean connected;
+    private boolean chat_created;
+    private boolean loggedin;
 
     private LocalStorage localStorage;
 
@@ -286,9 +310,7 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
         User user = new User(fullname, email, idUser, urlPhoto);
         localStorage.addToStorage(LocalStorage.USER, user);
 
-        String username = email.substring(0, email.lastIndexOf("@"));
-        MyLoginTask task = new MyLoginTask(username, idUser);
-        task.execute("");
+//        new ConnectToXmppServer().execute();
 
         Snackbar.make(rootView, "Logado com sucesso!!", Snackbar.LENGTH_SHORT).show();
     }
@@ -306,135 +328,6 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
 
         if (LoginManager.getInstance() != null) {
             LoginManager.getInstance().logOut();
-        }
-    }
-
-    private class MyLoginTask extends AsyncTask<String, String, String> {
-        private String username;
-        private String password;
-
-        public MyLoginTask(String username, String password) {
-            this.username = username;
-            this.password = password;
-        }
-
-        @Override
-        protected String doInBackground(String... strings) {
-
-            XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
-                    //.setUsernameAndPassword("berg", "041097")
-                    .setHost(C.URL_SERVER)
-                    .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
-                    .setServiceName(C.DOMAIN)
-                    .setPort(5222)
-                    .setDebuggerEnabled(true)
-                    .build();
-
-            AbstractXMPPConnection con1 = new XMPPTCPConnection(config);
-
-            try {
-                con1.connect();
-
-                con1.login("admin", "admin");
-
-                if (con1.isAuthenticated()) {
-                    AccountManager accountManager = AccountManager.getInstance(con1);
-                    accountManager.sensitiveOperationOverInsecureConnection(true);
-                    accountManager.createAccount(username, password);
-                    con1.disconnect();
-                    // con1.connect();
-                    // The account has been created, so we can now login
-                    con1.login(username, password);
-                }
-
-//                AccountManager accountManager = AccountManager.getInstance(con1);
-//
-//                if (accountManager.supportsAccountCreation()) {
-//                    try {
-//                        accountManager.createAccount(username, password);
-//                    } catch (XMPPException ex) {
-//                        Log.d(TAG, "Erro ao criar conta");
-//                    }
-//
-//                }
-//                else{
-//                    Log.d(TAG, "Server doesn't support creating new accounts");
-//                }
-//                //   accountManager.sensitiveOperationOverInsecureConnection(true);
-//                // accountManager.createAccount(username + "@" + C.DOMAIN, password);   // Skipping optional fields like email, first name, last name, etc..
-//
-//                if (con1.isConnected()) {
-//                    Log.d(TAG, "Connection done");
-//                }
-//                con1.login();
-
-                if (con1.isAuthenticated()) {
-                    Log.d(TAG, "Authentication done");
-
-                    final ChatManager chatManager = ChatManager.getInstanceFor(con1);
-                    chatManager.addChatListener(new ChatManagerListener() {
-                        @Override
-                        public void chatCreated(Chat chat, boolean createdLocally) {
-                            chat.addMessageListener(new ChatMessageListener() {
-                                @Override
-                                public void processMessage(Chat chat, Message message) {
-                                    System.out.println("Received message: " + (message != null? message.getBody() : "NULL"));
-                                    try {
-                                        chatManager.getThreadChat(chat.getThreadID()).sendMessage(new Message(message.getFrom(), "Resposta de retorno!"));
-                                    } catch (SmackException.NotConnectedException e) {
-                                        e.printStackTrace();
-                                        Log.d(TAG, "Erro ao responder mensagem");
-                                    }
-                                }
-                            });
-
-                            Log.d(TAG, chat.toString());
-                        }
-                    });
-                }
-            } catch (SmackException | IOException | XMPPException e) {
-                Log.d(TAG, e.toString());
-            }
-
-//            Roster roster = Roster.getInstanceFor(con1);
-//            Collection<RosterEntry> entries = roster.getEntries();
-//            for (RosterEntry entry : entries) {
-//                System.out.println("Entry roster: " + entry);
-//            }
-//
-//            roster.addRosterListener(new RosterListener() {
-//                public void entriesDeleted(Collection<String> addresses) {}
-//
-//                @Override
-//                public void entriesAdded(Collection<String> addresses) {}
-//
-//                public void entriesUpdated(Collection<String> addresses) {}
-//                public void presenceChanged(Presence presence) {
-//                    System.out.println("Presence changed: " + presence.getFrom() + " " + presence);
-//                }
-//            });
-//
-//            StanzaFilter filter = new AndFilter(new StanzaTypeFilter(Message.class), new FromMatchesFilter("teste1@myserver.com", true));
-//            PacketCollector myCollector = con1.createPacketCollector(filter);
-//
-//            StanzaListener myListener = new StanzaListener() {
-//                @Override
-//                public void processPacket(Stanza packet) throws SmackException.NotConnectedException {
-//
-//                }
-//
-//                public void processStanza(Stanza stanza) {
-//                    // Do something with the incoming stanza here._
-//                }
-//            };
-//            con1.addAsyncStanzaListener(myListener, filter);
-
-            return "";
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-
         }
     }
 
