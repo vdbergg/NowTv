@@ -25,7 +25,13 @@
             android:layout_alignParentBottom="true"
             android:text="0:25"
             android:textSize="17sp"
-            android:padding="7dp"
+            android:paddingStart="7dp"
+            android:paddingLeft="7dp"
+            android:paddingRight="7dp"
+            android:paddingEnd="7dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+
             android:textColor="@color/colorWhite"
             android:background="@android:color/black"/>
     </RelativeLayout>
