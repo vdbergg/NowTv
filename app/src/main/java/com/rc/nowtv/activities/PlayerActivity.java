@@ -1,5 +1,6 @@
 package com.rc.nowtv.activities;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
@@ -8,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -30,9 +32,6 @@ import com.rc.nowtv.models.ChatMessage;
 import com.rc.nowtv.models.User;
 import com.rc.nowtv.utils.LocalStorage;
 import com.rc.nowtv.xmpp.MyXMPP;
-
-import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.XMPPException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -90,6 +89,7 @@ public class PlayerActivity extends AppCompatActivity {
         imgShowChat = (ImageView) findViewById(R.id.iv_show_chat);
         layoutChat = (RelativeLayout) findViewById(R.id.layout_chat);
         listOfMessage = (ListView) findViewById(R.id.list_of_message);
+        listOfMessage.setOnItemClickListener(new OnClickUser());
 
         emojiButton = (ImageView) findViewById(R.id.emoji_button);
         submitButton = (ImageView) findViewById(R.id.submit_button);
@@ -301,5 +301,12 @@ public class PlayerActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+    }
+
+    private class OnClickUser implements android.widget.AdapterView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            startActivity(new Intent(getApplicationContext(), ChatOneToOne.class));
+        }
     }
 }
