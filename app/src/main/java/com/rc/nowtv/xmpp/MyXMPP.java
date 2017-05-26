@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.google.gson.Gson;
 import com.rc.nowtv.models.ChatMessage;
 import com.rc.nowtv.models.User;
 import com.rc.nowtv.utils.C;
@@ -17,33 +16,21 @@ import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.chat.Chat;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.roster.RosterEntry;
-import org.jivesoftware.smack.roster.RosterGroup;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
-import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.iqregister.AccountManager;
-import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MUCNotJoinedException;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
-import org.jivesoftware.smackx.offline.OfflineMessageManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import tv.icomp.vod.vodplayer.log.LogManager;
-
-import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
 
 /**
  * Created by berg on 23/05/17.
@@ -230,14 +217,7 @@ public class MyXMPP implements ConnectionListener {
             mchat.addMessageListener(new MessageListener() {
                 @Override
                 public void processMessage(Message message) {
-                    Log.i("MyXMPP_MESSAGE_LISTENER", "Xmpp message received: '" + message);
-//                    Log.d(TAG, "Body: " + message.getBody());
-//                    Log.d(TAG, "Subject: " + message.getSubject());
-//                    Log.d(TAG, "From: " + message.getFrom());
-//                    Log.d(TAG, "To: " + message.getTo());
-//                    Log.d(TAG, "StanzaId: " + message.getStanzaId());
-//                    Log.d(TAG, "Thread: " + message.getThread());
-//                    Log.d(TAG, "Type: " + message.getType().name());
+                    Log.d("MyXMPP_MESSAGE_LISTENER", "Xmpp message received: '" + message);
                     if (message != null && message.getBody() != null) {
                         receivedMessages.onReceived(new ChatMessage(message.getBody(),
                                 message.getFrom().substring(message.getFrom().lastIndexOf("/")+1, message.getFrom().length()), null));
@@ -250,7 +230,7 @@ public class MyXMPP implements ConnectionListener {
                 System.out.println("The conference room success....");
             }
             //mchat.grantVoice(username);
-            mchat.grantMembership(username + "@" + C.GROUP_CHAT_SERVER);
+//            mchat.grantMembership(username + "@" + C.GROUP_CHAT_SERVER);
 
             return true;
         } catch (SmackException e) {
@@ -291,23 +271,14 @@ public class MyXMPP implements ConnectionListener {
         return Entrieslist;
     }
 
-//    public void sendMessage(String message) throws XMPPException, SmackException.NotConnectedException {
-//        if (mchat != null ) {
-//            mchat.sendMessage(message);
-//            Log.d(TAG, "mensagem enviada para grupo!!!");
-//        } else
-//            Log.d(TAG, "mChat eh nulo!!!");
-//    }
-
     public void sendMessage(String chatMessage) {
-//        MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
-//        mchat = mchat == null? manager.getMultiUserChat("redes2017@conference." + C.GROUP_CHAT_SERVER) : mchat;
+        MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
+        mchat = mchat == null? manager.getMultiUserChat("redes2017@" + C.GROUP_CHAT_SERVER) : mchat;
 
-
-        Message msg = new Message();
-        msg.setType(Message.Type.groupchat);
-        msg.setTo("redes2017@" + C.GROUP_CHAT_SERVER);
-        msg.setBody(chatMessage);
+//        Message msg = new Message();
+//        msg.setType(Message.Type.groupchat);
+//        msg.setTo("redes2017@" + C.GROUP_CHAT_SERVER);
+//        msg.setBody(chatMessage);
 
 
         if (!mchat.isJoined()) {
@@ -329,15 +300,14 @@ public class MyXMPP implements ConnectionListener {
         message.setType(Message.Type.groupchat);
 
         try {
-            connection.sendPacket(msg);
+//            connection.sendPacket(msg);
             mchat.sendMessage(message);
             Log.d(TAG, "Mensagem enviada com sucesso!");
-        } catch (XMPPException e) {
-            e.printStackTrace();
-            Log.d(TAG, e.toString());
         } catch (SmackException.NotConnectedException e) {
             e.printStackTrace();
             Log.d(TAG, e.toString());
+        } catch (XMPPException e) {
+            e.printStackTrace();
         }
     }
 
