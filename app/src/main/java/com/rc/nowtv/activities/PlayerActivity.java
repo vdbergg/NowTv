@@ -1,15 +1,20 @@
 package com.rc.nowtv.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -28,9 +33,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.rc.nowtv.R;
 import com.rc.nowtv.adapters.ChatAdapter;
+import com.rc.nowtv.adapters.ListDrawerAdapter;
 import com.rc.nowtv.models.ChatMessage;
+import com.rc.nowtv.models.Member;
 import com.rc.nowtv.models.User;
 import com.rc.nowtv.utils.LocalStorage;
+import com.rc.nowtv.utils.UtilDesign;
 import com.rc.nowtv.xmpp.MyXMPP;
 
 import java.io.IOException;
@@ -56,6 +64,7 @@ public class PlayerActivity extends AppCompatActivity {
     private RelativeLayout layoutShowChatLive;
     private RelativeLayout layoutChat;
     private ImageView imgShowChat;
+    private ImageButton btnGroupChat;
 
     private EmojiconEditText emojiconEditText;
     private ImageView emojiButton, submitButton;
@@ -65,6 +74,13 @@ public class PlayerActivity extends AppCompatActivity {
     private ChatAdapter chatAdapter;
     private ArrayList<ChatMessage> listMessages;
 
+    private RelativeLayout leftRL;
+    private DrawerLayout drawerLayout;
+    private ListView lvMembersGroup;
+    private ListDrawerAdapter listDrawerAdapter;
+    private ArrayList<Member> itens;
+    private boolean isShowDrawer;
+
     private MyXMPP myXMPP;
 
 
@@ -73,11 +89,39 @@ public class PlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
+        showActionBar();
         initView();
         initListener();
         initVodPlayer();
         initXMPPServer();
+        initDrawer();
         initChat();
+    }
+
+    private void initDrawer() {
+        itens = new ArrayList<>();
+
+        itens.add(new Member("Fulano", R.mipmap.ic_person_black_24dp));
+        itens.add(new Member("Ciclano", R.mipmap.ic_person_black_24dp));
+        itens.add(new Member("Bertano", R.mipmap.ic_person_black_24dp));
+        itens.add(new Member("Beltrano", R.mipmap.ic_person_black_24dp));
+        itens.add(new Member("Fuleiro", R.mipmap.ic_person_black_24dp));
+
+        listDrawerAdapter = new ListDrawerAdapter(this, itens);
+        lvMembersGroup.setAdapter(listDrawerAdapter);
+//        lvMembersGroup.setCacheColorHint(getResources().getColor(R.color.colorGreey));
+        UtilDesign.setListViewHeightBasedOnChildren(lvMembersGroup);
+    }
+
+    private void showActionBar() {
+        LayoutInflater inflator = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View v = inflator.inflate(R.layout.menu_custom, null);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        actionBar.setDisplayShowHomeEnabled (false);
+        actionBar.setDisplayShowCustomEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setCustomView(v);
     }
 
     private void initView() {
@@ -89,7 +133,11 @@ public class PlayerActivity extends AppCompatActivity {
         imgShowChat = (ImageView) findViewById(R.id.iv_show_chat);
         layoutChat = (RelativeLayout) findViewById(R.id.layout_chat);
         listOfMessage = (ListView) findViewById(R.id.list_of_message);
-        listOfMessage.setOnItemClickListener(new OnClickUser());
+
+        leftRL = (RelativeLayout)findViewById(R.id.whatYouWantInLeftDrawer);
+        drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        lvMembersGroup = (ListView) findViewById(R.id.lv_members);
+        btnGroupChat = (ImageButton) findViewById(R.id.btn_group_chat);
 
         emojiButton = (ImageView) findViewById(R.id.emoji_button);
         submitButton = (ImageView) findViewById(R.id.submit_button);
@@ -143,6 +191,46 @@ public class PlayerActivity extends AppCompatActivity {
                 } else {
                     showChat(false);
                 }
+            }
+        });
+
+        btnGroupChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isShowDrawer) {
+                    drawerLayout.closeDrawer(leftRL);
+                } else {
+                    drawerLayout.openDrawer(leftRL);
+                }
+            }
+        });
+
+        drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                isShowDrawer = true;
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                isShowDrawer = false;
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
+
+        lvMembersGroup.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                startActivity(new Intent(getApplicationContext(), ChatOneToOne.class));
             }
         });
     }
@@ -301,12 +389,5 @@ public class PlayerActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-    }
-
-    private class OnClickUser implements android.widget.AdapterView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            startActivity(new Intent(getApplicationContext(), ChatOneToOne.class));
-        }
     }
 }

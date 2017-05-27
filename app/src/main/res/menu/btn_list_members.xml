@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.rc.nowtv.activities.PlayerActivity">
+
+    <item
+        android:id="@+id/menu_group"
+        android:title="Group"
+        android:icon="@mipmap/ic_group_white_24dp"
+        app:showAsAction="ifRoom">
+
+    </item>
+
+</menu>
