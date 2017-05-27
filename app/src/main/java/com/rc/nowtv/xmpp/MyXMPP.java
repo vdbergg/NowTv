@@ -18,6 +18,10 @@ import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.chat.Chat;
+import org.jivesoftware.smack.chat.ChatManager;
+import org.jivesoftware.smack.chat.ChatManagerListener;
+import org.jivesoftware.smack.chat.ChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
@@ -37,7 +41,7 @@ import java.util.Map;
  * Created by berg on 23/05/17.
  */
 
-public class MyXMPP implements ConnectionListener {
+public class MyXMPP implements ConnectionListener, ChatManagerListener {
     private static final String TAG = MyXMPP.class.getSimpleName();
 
 //    private XmppService contextXMPP;
@@ -46,6 +50,7 @@ public class MyXMPP implements ConnectionListener {
     private static MyXMPP instance;
     private static XMPPTCPConnection connection;
     private MultiUserChat mchat;
+    private Chat chat;
     private LocalStorage localStorage;
 
     private String serviceName;
@@ -81,10 +86,29 @@ public class MyXMPP implements ConnectionListener {
         return listMembers;
     }
 
+    public Chat getChat() {
+        return chat;
+    }
+
     private void init() {
         localStorage = LocalStorage.getInstance(context);
         new ConnectToXmppServer().execute();
 
+    }
+
+    @Override
+    public void chatCreated(Chat chat, boolean createdLocally) {
+        chat.addMessageListener(new ChatMessageListener() {
+            @Override
+            public void processMessage(Chat chat, Message message) {
+                receivedMessages.onReceived(chat, message);
+                Log.d(TAG, "Mensagem recebida em chat um pra um: " + message.getBody());
+            }
+        });
+    }
+
+    public void setOnReceived(ReceivedMessages received) {
+        this.receivedMessages = received;
     }
 
     private class ConnectToXmppServer extends AsyncTask<Void, Void, Void> {
@@ -159,6 +183,24 @@ public class MyXMPP implements ConnectionListener {
             if (e.getMessage().equals("XMPPError: conflict - cancel")) {
                 login(user.getUsername(), user.getIdUser());
             }
+        }
+
+        if (connection.isAuthenticated()) {
+            Log.w("app", "Auth done");
+            ChatManager chatManager = ChatManager.getInstanceFor(connection);
+            chatManager.addChatListener(new ChatManagerListener() {
+                        @Override
+                        public void chatCreated(Chat chat, boolean createdLocally) {
+                            MyXMPP.this.chat = chat;
+
+                            chat.addMessageListener(new ChatMessageListener() {
+                                @Override
+                                public void processMessage(Chat chat, Message message) {
+                                    receivedMessages.onReceived(chat, message);
+                                }
+                            });
+                        }
+                    });
         }
 
         receivedMessages.onConnected();
@@ -316,12 +358,25 @@ public class MyXMPP implements ConnectionListener {
 
         for (int i = 0; i < listUser.size(); i++) {
             String name = listUser.get(i);
-            name = name.substring(name.lastIndexOf("/")+1, name.length());
+            String username = name.substring(name.lastIndexOf("/")+1, name.length());
             Presence presence = mchat.getOccupantPresence(name);
 
-            memberList.add(new Member(name, getStatus(presence)));
+            memberList.add(new Member(username, getStatus(presence), name));
         }
         return memberList;
+    }
+
+    public void createChatOneToOne(String jId) {
+        if (connection == null) return;
+
+        MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
+        mchat = mchat == null? manager.getMultiUserChat(C.GROUP_NAME + "@" + C.GROUP_CHAT_DOMAIN) : mchat;
+
+        chat = mchat.createPrivateChat(jId, new ChatMessageListener() {
+            @Override
+            public void processMessage(Chat chat, Message message) {
+            }
+        });
     }
 
     private int getStatus(Presence presence) {
@@ -338,6 +393,8 @@ public class MyXMPP implements ConnectionListener {
 
     public interface ReceivedMessages {
         void onReceived(ChatMessage chatMessage);
+        void onReceived(Chat chat, Message message);
+
         void onConnected();
     }
 }

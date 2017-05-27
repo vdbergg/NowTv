@@ -7,10 +7,20 @@ package com.rc.nowtv.models;
 public class Member {
     private String texto;
     private int iconeRId;
+    private String jId;
 
-    public Member(String texto, int iconeRId) {
+    public Member(String texto, int iconeRId, String jId) {
         this.texto = texto;
         this.iconeRId = iconeRId;
+        this.jId = jId;
+    }
+
+    public String getjId() {
+        return jId;
+    }
+
+    public void setjId(String jId) {
+        this.jId = jId;
     }
 
     public int getIconeRId() {

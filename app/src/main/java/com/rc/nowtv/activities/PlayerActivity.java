@@ -40,6 +40,9 @@ import com.rc.nowtv.utils.LocalStorage;
 import com.rc.nowtv.utils.UtilDesign;
 import com.rc.nowtv.xmpp.MyXMPP;
 
+import org.jivesoftware.smack.chat.Chat;
+import org.jivesoftware.smack.packet.Message;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -64,6 +67,7 @@ public class PlayerActivity extends AppCompatActivity {
     private RelativeLayout layoutChat;
     private ImageView imgShowChat;
     private ImageButton btnGroupChat;
+    private ImageView btnAlertChat;
 
     private EmojiconEditText emojiconEditText;
     private ImageView emojiButton, submitButton;
@@ -129,6 +133,7 @@ public class PlayerActivity extends AppCompatActivity {
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         lvMembersGroup = (ListView) findViewById(R.id.lv_members);
         btnGroupChat = (ImageButton) findViewById(R.id.btn_group_chat);
+        btnAlertChat = (ImageView) findViewById(R.id.btn_alert_chat);
 
         emojiButton = (ImageView) findViewById(R.id.emoji_button);
         submitButton = (ImageView) findViewById(R.id.submit_button);
@@ -216,7 +221,18 @@ public class PlayerActivity extends AppCompatActivity {
         lvMembersGroup.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                startActivity(new Intent(getApplicationContext(), ChatOneToOne.class));
+//                myXMPP.createChatOneToOne(listDrawerAdapter.getItem(position).getjId());
+                Intent i = new Intent(getApplicationContext(), ChatOneToOne.class);
+                i.putExtra("jId", listDrawerAdapter.getItem(position).getjId());
+                startActivity(i);
+            }
+        });
+
+        btnAlertChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(), ChatOneToOne.class);
+                startActivity(i);
             }
         });
     }
@@ -232,6 +248,16 @@ public class PlayerActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     refreshAdapter(chatMessage);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onReceived(Chat chat, Message message) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    btnAlertChat.setVisibility(View.VISIBLE);
                                 }
                             });
                         }
