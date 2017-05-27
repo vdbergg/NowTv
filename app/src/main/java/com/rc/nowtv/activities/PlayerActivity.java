@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.rc.nowtv.R;
 import com.rc.nowtv.adapters.ChatAdapter;
@@ -94,22 +93,14 @@ public class PlayerActivity extends AppCompatActivity {
         initListener();
         initVodPlayer();
         initXMPPServer();
-        initDrawer();
-        initChat();
     }
 
     private void initDrawer() {
         itens = new ArrayList<>();
-
-        itens.add(new Member("Fulano", R.mipmap.ic_person_black_24dp));
-        itens.add(new Member("Ciclano", R.mipmap.ic_person_black_24dp));
-        itens.add(new Member("Bertano", R.mipmap.ic_person_black_24dp));
-        itens.add(new Member("Beltrano", R.mipmap.ic_person_black_24dp));
-        itens.add(new Member("Fuleiro", R.mipmap.ic_person_black_24dp));
+        itens = myXMPP.getListMembers();
 
         listDrawerAdapter = new ListDrawerAdapter(this, itens);
         lvMembersGroup.setAdapter(listDrawerAdapter);
-//        lvMembersGroup.setCacheColorHint(getResources().getColor(R.color.colorGreey));
         UtilDesign.setListViewHeightBasedOnChildren(lvMembersGroup);
     }
 
@@ -171,12 +162,6 @@ public class PlayerActivity extends AppCompatActivity {
                 if (emojiconEditText.getText().toString().length() > 0) {
 
                     myXMPP.sendMessage(emojiconEditText.getText().toString());
-                    //                    FirebaseDatabase.getInstance().getReference().push().setValue(
-//                            new ChatMessage(emojiconEditText.getText().toString(), user.getName(), user.getUrlPhoto()));
-
-                    Log.d("MyXMPP", "Conteúdo texto: " + emojiconEditText.getText());
-                    //refreshAdapter(new ChatMessage(emojiconEditText.getText().toString(), user.getName(), null));
-
                     emojiconEditText.setText("");
                     emojiconEditText.requestFocus();
                 }
@@ -200,6 +185,7 @@ public class PlayerActivity extends AppCompatActivity {
                 if (isShowDrawer) {
                     drawerLayout.closeDrawer(leftRL);
                 } else {
+                    initDrawer();
                     drawerLayout.openDrawer(leftRL);
                 }
             }
@@ -249,6 +235,16 @@ public class PlayerActivity extends AppCompatActivity {
                                 }
                             });
                         }
+
+                        @Override
+                        public void onConnected() {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    initDrawer();
+                                }
+                            });
+                        }
                     });
 
             listMessages = myXMPP.getOldMessages();
@@ -264,11 +260,6 @@ public class PlayerActivity extends AppCompatActivity {
         chatAdapter.add(chatMessage);
         chatAdapter.notifyDataSetChanged();
         scrollToLast();
-    }
-
-
-    private void initChat() {
-        //displayChatMessage();
     }
 
     private void initVodPlayer() {
@@ -360,11 +351,6 @@ public class PlayerActivity extends AppCompatActivity {
 
     private void setVisibilityChatItems(int visibility) {
         layoutChat.setVisibility(visibility);
-    }
-
-    private void cleanDBFirebase() {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-        databaseReference.removeValue();
     }
 
     public void scrollToLast() {

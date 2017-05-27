@@ -60,7 +60,9 @@ public class ListDrawerAdapter extends BaseAdapter {
         Member item = itens.get(position);
         view = mInflater.inflate(R.layout.item_member, null);
 
-        ((ImageView) view.findViewById(R.id.ic_user_list_members)).setImageResource(item.getIconeRId());
+        if (item.getIconeRId() != -1)
+            ((ImageView) view.findViewById(R.id.ic_status)).setImageResource(item.getIconeRId());
+        ((ImageView) view.findViewById(R.id.ic_user_list_members)).setImageResource(R.mipmap.ic_person_black_24dp);
         ((TextView) view.findViewById(R.id.tv_username_member)).setText(item.getTexto());
 
         return view;

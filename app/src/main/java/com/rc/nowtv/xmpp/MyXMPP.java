@@ -4,7 +4,9 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.rc.nowtv.R;
 import com.rc.nowtv.models.ChatMessage;
+import com.rc.nowtv.models.Member;
 import com.rc.nowtv.models.User;
 import com.rc.nowtv.utils.C;
 import com.rc.nowtv.utils.LocalStorage;
@@ -18,7 +20,6 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.iqregister.AccountManager;
@@ -53,6 +54,7 @@ public class MyXMPP implements ConnectionListener {
     private String password;
 
     private ReceivedMessages receivedMessages;
+    private ArrayList<Member> listMembers;
 
     private MyXMPP(Context context, String mServiceName, String mHostAddress, String username,
                    String password, ReceivedMessages receivedMessages) {
@@ -62,6 +64,7 @@ public class MyXMPP implements ConnectionListener {
         this.password = password;
         this.context = context;
         this.receivedMessages = receivedMessages;
+        this.listMembers = new ArrayList<>();
         init();
     }
 
@@ -72,6 +75,10 @@ public class MyXMPP implements ConnectionListener {
         }
         return instance;
 
+    }
+
+    public ArrayList<Member> getListMembers() {
+        return listMembers;
     }
 
     private void init() {
@@ -153,6 +160,8 @@ public class MyXMPP implements ConnectionListener {
                 login(user.getUsername(), user.getIdUser());
             }
         }
+
+        receivedMessages.onConnected();
     }
 
     private void login(String username, String id) {
@@ -173,7 +182,7 @@ public class MyXMPP implements ConnectionListener {
             e.printStackTrace();
         }
 
-        join("redes2017", username);
+        join(C.GROUP_NAME, username);
     }
 
     @Override
@@ -204,7 +213,7 @@ public class MyXMPP implements ConnectionListener {
     public boolean join(String group, String username) {
         try {
             MultiUserChatManager mchatManager = MultiUserChatManager.getInstanceFor(connection);
-            mchat = mchatManager.getMultiUserChat(group + "@" + C.GROUP_CHAT_SERVER);
+            mchat = mchatManager.getMultiUserChat(group + "@" + C.GROUP_CHAT_DOMAIN);
 
 //            DiscussionHistory history = new DiscussionHistory();
 //            history.setMaxStanzas(5);
@@ -222,12 +231,10 @@ public class MyXMPP implements ConnectionListener {
             });
 
             if (!mchat.isJoined()) {
-                mchat.join(username, "redes2017"/*, "", history, connection.getPacketReplyTimeout()*/);
+                mchat.join(username, C.GROUP_NAME/*, "", history, connection.getPacketReplyTimeout()*/);
+                listMembers = getMembersGroup();
                 System.out.println("The conference room success....");
             }
-            //mchat.grantVoice(username);
-//            mchat.grantMembership(username + "@" + C.GROUP_CHAT_SERVER);
-
             return true;
         } catch (SmackException e) {
             e.printStackTrace();
@@ -254,32 +261,20 @@ public class MyXMPP implements ConnectionListener {
         return oldMessages;
     }
 
-    public List<RosterEntry> getEntriesByGroup(String groupName) {
-        if (connection == null)
-            return null;
-        List<RosterEntry> Entrieslist = new ArrayList<RosterEntry>();
-//        RosterGroup rosterGroup = connection..getRoster().getGroup(groupName);
-//        Collection<RosterEntry> rosterEntry = rosterGroup.getEntries();
-//        Iterator<RosterEntry> i = rosterEntry.iterator();
-//        while (i.hasNext()) {
-//            Entrieslist.add(i.next());
-//        }
-        return Entrieslist;
-    }
-
     public void sendMessage(String chatMessage) {
         MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
-        mchat = mchat == null? manager.getMultiUserChat("redes2017@" + C.GROUP_CHAT_SERVER) : mchat;
+        mchat = mchat == null? manager.getMultiUserChat(C.GROUP_NAME + "@" + C.GROUP_CHAT_DOMAIN) : mchat;
 
 //        Message msg = new Message();
 //        msg.setType(Message.Type.groupchat);
-//        msg.setTo("redes2017@" + C.GROUP_CHAT_SERVER);
+//        msg.setTo("redes2017@" + C.GROUP_CHAT_DOMAIN);
 //        msg.setBody(chatMessage);
 
 
         if (!mchat.isJoined()) {
             try {
-                mchat.join(username, "redes2017");
+                mchat.join(username, C.GROUP_NAME);
+                mchat.sendMessage(username + " entrou na sala " + C.GROUP_NAME);
             } catch (SmackException.NoResponseException e) {
                 e.printStackTrace();
             } catch (XMPPException.XMPPErrorException e) {
@@ -287,6 +282,8 @@ public class MyXMPP implements ConnectionListener {
             } catch (SmackException.NotConnectedException e) {
                 e.printStackTrace();
             } catch (SmackException e) {
+                e.printStackTrace();
+            } catch (XMPPException e) {
                 e.printStackTrace();
             }
         }
@@ -307,7 +304,40 @@ public class MyXMPP implements ConnectionListener {
         }
     }
 
+    public ArrayList<Member> getMembersGroup() {
+        if (connection == null) return new ArrayList<>();
+
+        MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
+        mchat = mchat == null? manager.getMultiUserChat(C.GROUP_NAME + "@" + C.GROUP_CHAT_DOMAIN) : mchat;
+
+        List<String> listUser = mchat.getOccupants();
+
+        ArrayList<Member> memberList = new ArrayList<>();
+
+        for (int i = 0; i < listUser.size(); i++) {
+            String name = listUser.get(i);
+            name = name.substring(name.lastIndexOf("/")+1, name.length());
+            Presence presence = mchat.getOccupantPresence(name);
+
+            memberList.add(new Member(name, getStatus(presence)));
+        }
+        return memberList;
+    }
+
+    private int getStatus(Presence presence) {
+        int idPhoto = -1;
+        if (presence == null || presence.getType() == null) return idPhoto;
+
+        switch (presence.getType().name()) {
+            case "AVAILABLE": idPhoto = R.mipmap.ic_online; break;
+            case "UNAVAILABLE": idPhoto = R.mipmap.ic_offline; break;
+            default: idPhoto = R.mipmap.ic_offline; break;
+        }
+        return idPhoto;
+    }
+
     public interface ReceivedMessages {
         void onReceived(ChatMessage chatMessage);
+        void onConnected();
     }
 }
