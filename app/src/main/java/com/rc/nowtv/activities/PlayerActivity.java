@@ -127,7 +127,7 @@ public class PlayerActivity extends AppCompatActivity {
 //                            new ChatMessage(emojiconEditText.getText().toString(), user.getName(), user.getUrlPhoto()));
 
                     Log.d("MyXMPP", "Conteúdo texto: " + emojiconEditText.getText());
-                    refreshAdapter(new ChatMessage(emojiconEditText.getText().toString(), user.getName(), null));
+                    //refreshAdapter(new ChatMessage(emojiconEditText.getText().toString(), user.getName(), null));
 
                     emojiconEditText.setText("");
                     emojiconEditText.requestFocus();

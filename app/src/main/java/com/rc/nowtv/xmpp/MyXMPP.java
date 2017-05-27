@@ -210,10 +210,6 @@ public class MyXMPP implements ConnectionListener {
 //            history.setMaxStanzas(5);
 //            history.setSince(new Date());
 
-            boolean supports = MultiUserChatManager.getInstanceFor(connection).isServiceEnabled("vdbdgf@myserver.rc");
-            boolean supports2 = MultiUserChatManager.getInstanceFor(connection).isServiceEnabled("berg@myserver.rc");
-            Log.d(TAG, "Vdbdgf: " + supports + " berg: " + supports2);
-
             mchat.addMessageListener(new MessageListener() {
                 @Override
                 public void processMessage(Message message) {
