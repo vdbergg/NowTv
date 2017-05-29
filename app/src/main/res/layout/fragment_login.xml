@@ -56,28 +56,19 @@
         android:gravity="left|center_vertical" />
 
 
-    <!--<com.google.android.gms.common.SignInButton-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="67dp"-->
-        <!--android:id="@+id/btn_sign_in_gmail"-->
-        <!--android:layout_centerInParent="true"-->
-        <!--android:layout_marginLeft="22dp"-->
-        <!--android:layout_marginRight="22dp"-->
-        <!--android:layout_marginTop="300dp"-->
-        <!--/>-->
-
-    <!--<com.facebook.login.widget.LoginButton-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:id="@+id/btn_login_facebook"-->
-        <!--android:layout_marginLeft="25dp"-->
-        <!--android:layout_marginRight="25dp"-->
-        <!--android:layout_marginTop="10dp"-->
-        <!--android:paddingTop="20dp"-->
-        <!--android:paddingBottom="20dp"-->
-        <!--android:layout_below="@id/btn_sign_in_gmail"-->
-        <!--facebook:com_facebook_confirm_logout="true"-->
-        <!--facebook:com_facebook_tooltip_mode="never_display"-->
-        <!--android:layout_centerHorizontal="true"/>-->
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:text="sair"
+        android:textSize="17sp"
+        android:textColor="@color/colorWhite"
+        android:layout_marginTop="10dp"
+        android:id="@+id/btn_logout"
+        android:visibility="gone"
+        android:background="@color/colorRed"/>
 
 </LinearLayout>

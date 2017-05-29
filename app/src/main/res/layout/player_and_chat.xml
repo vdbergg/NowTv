@@ -6,13 +6,18 @@
     android:orientation="vertical"
     tools:context="com.rc.nowtv.activities.PlayerActivity">
 
+    <!--<VideoView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="255dp"-->
+        <!--android:id="@+id/video_view"/>-->
+
     <com.google.android.exoplayer2.ui.SimpleExoPlayerView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="199dp"
         android:keepScreenOn="true"
         android:focusable="true"
         android:id="@+id/sv_exo_player"/>
 
-    <include layout="@layout/chat_body_layout"/>
+    <include layout="@layout/chat_body_layout" />
 
 </LinearLayout>

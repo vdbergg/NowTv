@@ -2,15 +2,10 @@ package com.rc.nowtv.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -18,18 +13,14 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.firebase.database.FirebaseDatabase;
 import com.rc.nowtv.R;
 import com.rc.nowtv.adapters.ChatAdapter;
 import com.rc.nowtv.adapters.ListDrawerAdapter;
@@ -48,7 +39,6 @@ import java.util.ArrayList;
 
 import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
 import hani.momanii.supernova_emoji_library.Helper.EmojiconEditText;
-import hani.momanii.supernova_emoji_library.Helper.EmojiconTextView;
 import tv.icomp.vod.vodplayer.VodPlayer;
 import tv.icomp.vod.vodplayer.trackselector.evaluator.source.Evaluator;
 
@@ -59,7 +49,6 @@ public class PlayerActivity extends AppCompatActivity {
     private LocalStorage localStorage;
     private VodPlayer vodPlayer;
     private User user;
-
     private View rootView;
     private SimpleExoPlayerView exoPlayerView;
     private ListView listOfMessage;
@@ -92,6 +81,7 @@ public class PlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
+//        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         showActionBar();
         initView();
         initListener();
@@ -221,10 +211,10 @@ public class PlayerActivity extends AppCompatActivity {
         lvMembersGroup.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                myXMPP.createChatOneToOne(listDrawerAdapter.getItem(position).getjId());
-                Intent i = new Intent(getApplicationContext(), ChatOneToOne.class);
-                i.putExtra("jId", listDrawerAdapter.getItem(position).getjId());
-                startActivity(i);
+//                Intent i = new Intent(getApplicationContext(), ChatOneToOne.class);
+//                i.putExtra("creating", true);
+//                i.putExtra("jId", listDrawerAdapter.getItem(position).getjId());
+//                startActivity(i);
             }
         });
 
@@ -320,49 +310,22 @@ public class PlayerActivity extends AppCompatActivity {
             }
         };
         vodPlayer.buildPlayer(url, C.TYPE_HLS, evaluator);
-    }
 
-    private void displayChatMessage() {
-        Log.d(TAG, FirebaseDatabase.getInstance().getReference() != null ?
-                FirebaseDatabase.getInstance().getReference().toString() : "FirebaseDatabase é nulo!");
-
-        adapter = new FirebaseListAdapter<ChatMessage>(this, ChatMessage.class, R.layout.list_item,
-                FirebaseDatabase.getInstance().getReference()) {
-            @Override
-            protected void populateView(View v, ChatMessage model, int position) {
-
-                TextView messageText, messageUser, messageTime;
-                final ImageView photoUser;
-
-                photoUser = (ImageView) v.findViewById(R.id.photo_user);
-                messageText = (EmojiconTextView) v.findViewById(R.id.message_text);
-                messageUser = (TextView) v.findViewById(R.id.message_user);
-                messageTime = (TextView) v.findViewById(R.id.message_time);
-
-                Glide
-                        .with(getApplicationContext())
-                        .load(model.getUrlUserPhoto())
-                        .asBitmap().centerCrop()
-                        .placeholder(R.mipmap.ic_person_black_24dp)
-                        .into(new BitmapImageViewTarget(photoUser) {
-
-                            @Override
-                            protected void setResource(Bitmap resource) {
-                                RoundedBitmapDrawable circularBitmapDrawable =
-                                        RoundedBitmapDrawableFactory.create(getResources(), resource);
-                                circularBitmapDrawable.setCircular(true);
-                                photoUser.setImageDrawable(circularBitmapDrawable);
-                            }
-                        });
-
-                messageText.setText(model.getMessageText());
-                messageUser.setText(model.getUsername());
-                messageTime.setText(DateFormat.format("HH:mm", model.getTime()));
-
-                scrollToLast();
-            }
-        };
-        listOfMessage.setAdapter(adapter);
+//        final VideoView videoView = (VideoView)findViewById(R.id.video_view);
+////        videoView.setVideoURI(Uri.parse(C.URL_LIVE_VIDEO_TEST));
+//        videoView.setVideoPath(C.URL_LIVE_VIDEO);
+//        getWindow().setFormat(PixelFormat.TRANSLUCENT);
+//
+//        videoView.setMediaController(new MediaController(this));
+//        videoView.requestFocus();
+//        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//            public void onPrepared(MediaPlayer mp) {
+//                //progressDialog.dismiss();
+//                videoView.seekTo(0);
+//                videoView.start();
+//                Log.d(TAG, "Onprepared ok, reproduzindo...");
+//            }
+//        });
     }
 
     private void showChat(boolean isShow) {
@@ -389,6 +352,7 @@ public class PlayerActivity extends AppCompatActivity {
         super.onBackPressed();
         if (vodPlayer != null && vodPlayer.getExoPlayer() != null)
             vodPlayer.getExoPlayer().release();
+        finish();
     }
 
     @Override
@@ -402,4 +366,5 @@ public class PlayerActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
     }
+
 }

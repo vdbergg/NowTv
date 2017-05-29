@@ -7,6 +7,7 @@
     android:orientation="vertical"
     android:clickable="true"
     android:gravity="bottom"
+    android:isScrollContainer="false"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout

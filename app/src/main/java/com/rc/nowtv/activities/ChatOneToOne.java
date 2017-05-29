@@ -1,17 +1,16 @@
 package com.rc.nowtv.activities;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.rc.nowtv.R;
+import com.rc.nowtv.adapters.ChatOneToOneAdapter;
 import com.rc.nowtv.models.ChatMessage;
 import com.rc.nowtv.models.User;
 import com.rc.nowtv.utils.C;
@@ -57,8 +56,8 @@ public class ChatOneToOne extends Activity {
 
         initView();
         initListener();
-        initValue();
         initXMPP();
+        initValue();
     }
 
     private void initXMPP() {
@@ -71,23 +70,7 @@ public class ChatOneToOne extends Activity {
 
                     @Override
                     public void onReceived(Chat chat, final Message message) {
-                        if (message.getType() == Message.Type.chat && message.getBody() != null) {
 
-                            final ChatMessage chatMessage = new ChatMessage(message.getBody());
-
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    processMessage(chatMessage);
-                                    Log.d(TAG, "Message received: " + message.getBody());
-                                }
-                            });
-                            try {
-                                chat.sendMessage("reposta de retorno");
-                            } catch (SmackException.NotConnectedException e) {
-                                e.printStackTrace();
-                            }
-                        }
                     }
 
                     @Override
@@ -106,7 +89,7 @@ public class ChatOneToOne extends Activity {
             public void onReceived(Chat chat, final Message message) {
                 if (message.getType() == Message.Type.chat && message.getBody() != null) {
 
-                    final ChatMessage chatMessage = new ChatMessage(message.getBody());
+                    final ChatMessage chatMessage = new ChatMessage(message.getBody(), ChatMessage.MSG_RECEIVED);
 
                     runOnUiThread(new Runnable() {
                         @Override
@@ -115,29 +98,30 @@ public class ChatOneToOne extends Activity {
                             Log.d(TAG, "Message received: " + message.getBody());
                         }
                     });
-
-                    try {
-                        chat.sendMessage("reposta de retorno");
-                    } catch (SmackException.NotConnectedException e) {
-                        e.printStackTrace();
-                    }
                 }
             }
 
             @Override
             public void onConnected() {
-
+//                if (getIntent().getExtras().getBoolean("creating")) {
+//                    String jId = getIntent().getExtras().getString("jId");
+//                    myXMPP.getMuc().createPrivateChat(jId, new ChatMessageListener() {
+//                        @Override
+//                        public void processMessage(Chat chat, Message message) {
+//                            myXMPP.setChat(chat);
+//                            Log.d(TAG, "Message received: " + message.getBody());
+//                        }
+//                    });
+//                }
             }
         });
     }
 
     private void initValue() {
-        lvChat.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-        lvChat.setStackFromBottom(true);
-
         msgs = new ArrayList<>();
         chatOneToOneAdapter = new ChatOneToOneAdapter(getApplicationContext(), 0, msgs);
         lvChat.setAdapter(chatOneToOneAdapter);
+        lvChat.setSelection(chatOneToOneAdapter.getCount() -1);
     }
 
     private void initView() {
@@ -181,8 +165,9 @@ public class ChatOneToOne extends Activity {
         try {
             chat.sendMessage(msg);
 
-            chatOneToOneAdapter.add(new ChatMessage(msg));
+            chatOneToOneAdapter.add(new ChatMessage(msg, ChatMessage.MSG_SEND));
             chatOneToOneAdapter.notifyDataSetChanged();
+            lvChat.setSelection(chatOneToOneAdapter.getCount() -1);
 
             Log.d(TAG, "Msg enviada: " + msg);
         } catch (SmackException.NotConnectedException e) {
@@ -191,30 +176,9 @@ public class ChatOneToOne extends Activity {
     }
 
     private void processMessage(final ChatMessage chatMessage) {
-
         msgs.add(chatMessage);
 //        chatOneToOneAdapter.add(chatMessage);
         chatOneToOneAdapter.notifyDataSetChanged();
         lvChat.setSelection(chatOneToOneAdapter.getCount() -1);
-
-//        new Handler(Looper.getMainLooper()).post(new Runnable() {
-//
-//            @Override
-//            public void run() {
-//                chatOneToOneAdapter.notifyDataSetChanged();
-//                lvChat.setSelection(chatOneToOneAdapter.getCount() -1);
-//            }
-//        });
-    }
-
-    public class ChatOneToOneAdapter extends ArrayAdapter<ChatMessage> {
-        private ArrayList<ChatMessage> itens;
-        private Context context;
-
-        public ChatOneToOneAdapter(Context context, int resource, ArrayList<ChatMessage> chatMessages) {
-            super(context, resource, chatMessages);
-            this.context = context;
-            this.itens = chatMessages;
-        }
     }
 }

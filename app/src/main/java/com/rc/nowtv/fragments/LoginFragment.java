@@ -4,11 +4,15 @@ package com.rc.nowtv.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -49,6 +53,7 @@ import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
 public class LoginFragment extends Fragment implements GoogleApiClient.OnConnectionFailedListener {
     private View rootView;
     private FloatingActionButton btnLive;
+    private Button btnLogout;
 
     private GoogleApiClient mGoogleApiClient;
     private Button btnLoginGoogle;
@@ -66,12 +71,18 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
     private LocalStorage localStorage;
 
     private static final int RC_SIGN_IN = 007;
+    private User user;
 
 
     public LoginFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -85,6 +96,20 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
         initValue();
 
         return rootView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_sign_out) {
+            signOut();
+        }
+
+        return false;
     }
 
     @Override
@@ -115,6 +140,27 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
     }
 
     @Override
+    public void onStart() {
+        user = localStorage.getObjectFromStorage(LocalStorage.USER, User.class);
+        if (user == null) {
+            logoutUi();
+        } else {
+            loginUi();
+        }
+
+        if (mGoogleApiClient == null) {
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestEmail()
+                    .build();
+            mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                    .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                    .build();
+            mGoogleApiClient.connect();
+        }
+        super.onStart();
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == RC_SIGN_IN) {
@@ -137,19 +183,12 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
     }
 
     private void initView() {
-//        btnLive = (FloatingActionButton) rootView.findViewById(R.id.btn_live);
         btnLoginGoogle = (Button) rootView.findViewById(R.id.btn_sign_in_gmail);
         btnLoginFacebook = (Button) rootView.findViewById(R.id.btn_login_facebook);
+        btnLogout = (Button) rootView.findViewById(R.id.btn_logout);
     }
 
     private void initListener() {
-//        btnLive.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                startActivity(new Intent(rootView.getContext(), PlayerFragment.class));
-//            }
-//        });
-
         btnLoginGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -163,6 +202,14 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
                 LoginManager.getInstance().logInWithReadPermissions(getActivity(), Arrays.asList("email", "public_profile"));
             }
         });
+
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                logoutUi();
+                signOut();
+            }
+        });
     }
 
     private void initVariables() {
@@ -170,6 +217,12 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
     }
 
     private void initValue() {
+        user = localStorage.getObjectFromStorage(LocalStorage.USER, User.class);
+        if (user == null) {
+            logoutUi();
+        } else {
+            loginUi();
+        }
         initLoginGoogle();
         initLoginFacebook();
     }
@@ -269,16 +322,28 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
     }
 
     private void registerUser(String fullname, String email, String idUser, String urlPhoto) {
-        User user = new User(fullname, email, idUser, urlPhoto);
+        user = new User(fullname, email, idUser, urlPhoto);
         localStorage.addToStorage(LocalStorage.USER, user);
 
-//        new ConnectToXmppServer().execute();
-
         Snackbar.make(rootView, "Logado com sucesso!!", Snackbar.LENGTH_SHORT).show();
+
+        loginUi();
+    }
+
+    private void loginUi() {
+        btnLoginFacebook.setVisibility(View.GONE);
+        btnLoginGoogle.setVisibility(View.GONE);
+        btnLogout.setVisibility(View.VISIBLE);
+    }
+
+    private void logoutUi() {
+        btnLoginFacebook.setVisibility(View.VISIBLE);
+        btnLoginGoogle.setVisibility(View.VISIBLE);
+        btnLogout.setVisibility(View.GONE);
     }
 
     public void signOut() {
-        if (mGoogleApiClient != null) {
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
                     new ResultCallback<Status>() {
                         @Override
@@ -291,6 +356,7 @@ public class LoginFragment extends Fragment implements GoogleApiClient.OnConnect
         if (LoginManager.getInstance() != null) {
             LoginManager.getInstance().logOut();
         }
-    }
 
+        localStorage.addToStorage(LocalStorage.USER, null);
+    }
 }
