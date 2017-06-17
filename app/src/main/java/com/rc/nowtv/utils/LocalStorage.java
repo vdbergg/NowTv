@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.rc.nowtv.models.ChatMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,9 @@ public class LocalStorage {
      * Objeto Usuário
      */
     public static final String USER = "user";
+    private static final String SIZE_CHAT_MESSAGE_LIST = "size_message_list";
+    private static final String CHAT_MESSAGE_LIST = "message";
+
 
     /**
      *
@@ -196,5 +200,36 @@ public class LocalStorage {
             return 0;
         }
     }
+
+    /**
+     * Persiste a lista de comentários de um vídeo
+     * @param value
+     */
+    public void addMessageListToStorage(List<ChatMessage> value) {
+        if(value != null && value.size() < 20) {
+            addToStorage(SIZE_CHAT_MESSAGE_LIST, value.size());
+
+            for(int i = 0; i < value.size(); i++) {
+                ChatMessage chatMessage = value.get(i);
+                addToStorage(CHAT_MESSAGE_LIST + i, chatMessage);
+            }
+        } else if(value.size() > 20) {
+            addToStorage(SIZE_CHAT_MESSAGE_LIST, 0);
+        }
+    }
+
+    public ArrayList<ChatMessage> getMessagesFromStorage() {
+        ArrayList<ChatMessage> arrayList = new ArrayList<>();
+        int size = getIntFromStorage(SIZE_CHAT_MESSAGE_LIST);
+
+        for(int i = 0; i < size; i++) {
+            ChatMessage comment = getObjectFromStorage(CHAT_MESSAGE_LIST + i, ChatMessage.class);
+
+            arrayList.add(comment);
+        }
+
+        return arrayList;
+    }
+
 }
 

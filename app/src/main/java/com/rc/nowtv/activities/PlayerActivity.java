@@ -2,6 +2,7 @@ package com.rc.nowtv.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -15,7 +16,6 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.firebase.ui.database.FirebaseListAdapter;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
@@ -62,7 +62,6 @@ public class PlayerActivity extends AppCompatActivity {
     private ImageView emojiButton, submitButton;
     private EmojIconActions emojIconActions;
 
-    private FirebaseListAdapter<ChatMessage> adapter;
     private ChatAdapter chatAdapter;
     private ArrayList<ChatMessage> listMessages;
 
@@ -81,7 +80,6 @@ public class PlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
-//        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         showActionBar();
         initView();
         initListener();
@@ -258,17 +256,21 @@ public class PlayerActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     initDrawer();
+                                    getPastMessages();
                                 }
                             });
                         }
                     });
-
-            listMessages = myXMPP.getOldMessages();
-            chatAdapter = new ChatAdapter(getApplicationContext(), 0, listMessages);
-
-            listOfMessage.setAdapter(chatAdapter);
-            scrollToLast();
         }
+    }
+
+    private void getPastMessages() {
+        listMessages = myXMPP.getOldMessages();
+        chatAdapter = new ChatAdapter(getApplicationContext(), 0, myXMPP.getOldMessages());
+
+        listOfMessage.setAdapter(chatAdapter);
+        listOfMessage.setVisibility(View.VISIBLE);
+        scrollToLast();
     }
 
     private void refreshAdapter(ChatMessage chatMessage) {
@@ -363,8 +365,10 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onConfigurationChanged(Configuration newConfig) {
+        initXMPPServer();
+
+        super.onConfigurationChanged(newConfig);
     }
 
 }
