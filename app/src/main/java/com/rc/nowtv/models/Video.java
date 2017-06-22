@@ -8,12 +8,12 @@ public class Video {
     private String title;
     private String duration;
     private String published;
+    private String url;
     private int picture;
 
-    public Video(String title, String duration, String published, int picture) {
+    public Video(String title, String url, int picture) {
         this.title = title;
-        this.duration = duration;
-        this.published = published;
+        this.url = url;
         this.picture = picture;
     }
 
@@ -39,6 +39,14 @@ public class Video {
 
     public void setPublished(String published) {
         this.published = published;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public int getPicture() {

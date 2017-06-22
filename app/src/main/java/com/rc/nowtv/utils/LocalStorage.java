@@ -28,6 +28,11 @@ public class LocalStorage {
     private static final String SIZE_CHAT_MESSAGE_LIST = "size_message_list";
     private static final String CHAT_MESSAGE_LIST = "message";
 
+    /**
+     * Objeto Video
+     */
+    public static final String OBJ_VIDEO = "obj_video";
+
 
     /**
      *

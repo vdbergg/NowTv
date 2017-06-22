@@ -27,6 +27,7 @@ import com.rc.nowtv.adapters.ListDrawerAdapter;
 import com.rc.nowtv.models.ChatMessage;
 import com.rc.nowtv.models.Member;
 import com.rc.nowtv.models.User;
+import com.rc.nowtv.models.Video;
 import com.rc.nowtv.utils.LocalStorage;
 import com.rc.nowtv.utils.UtilDesign;
 import com.rc.nowtv.xmpp.MyXMPP;
@@ -71,6 +72,8 @@ public class PlayerActivity extends AppCompatActivity {
     private ListDrawerAdapter listDrawerAdapter;
     private ArrayList<Member> itens;
     private boolean isShowDrawer;
+
+    private Video video;
 
     private MyXMPP myXMPP;
 
@@ -130,6 +133,7 @@ public class PlayerActivity extends AppCompatActivity {
         emojIconActions.ShowEmojicon();
 
         localStorage = LocalStorage.getInstance(getApplicationContext());
+        video = localStorage.getObjectFromStorage(LocalStorage.OBJ_VIDEO, Video.class);
         user = localStorage.getObjectFromStorage(LocalStorage.USER, User.class);
 
         if (user == null) {
@@ -281,7 +285,7 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     private void initVodPlayer() {
-        String url = com.rc.nowtv.utils.C.URL_LIVE_VIDEO;
+        String url = video.getUrl() != null ? video.getUrl() : null;
         vodPlayer = new VodPlayer(getApplicationContext(), exoPlayerView);
         vodPlayer.setVodPlayerListener(new VodPlayer.VodPlayerListener() {
             @Override

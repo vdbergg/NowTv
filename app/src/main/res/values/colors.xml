@@ -10,4 +10,5 @@
     <color name="white_grayed">#FFCCCCCC</color>
     <color name="colorBlackTransparent">#44000000</color>
     <color name="colorGrey">#a8a8a8</color>
+    <color name="colorRedTransparent">#8CFF0000</color>
 </resources>

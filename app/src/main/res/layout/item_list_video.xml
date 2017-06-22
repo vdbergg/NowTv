@@ -23,17 +23,18 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:text="0:25"
+            android:text="AO VIVO"
+            android:textStyle="bold"
             android:textSize="17sp"
-            android:paddingStart="7dp"
-            android:paddingLeft="7dp"
-            android:paddingRight="7dp"
-            android:paddingEnd="7dp"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
+            android:paddingStart="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="7dp"
+            android:paddingBottom="7dp"
 
             android:textColor="@color/colorWhite"
-            android:background="@android:color/black"/>
+            android:background="@color/colorRedTransparent"/>
     </RelativeLayout>
 
     <TextView
@@ -46,13 +47,13 @@
         android:text="Atiradores de elite - Afeganistão"
         android:textSize="20sp"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/activity_horizontal_margin"
-        android:id="@+id/tv_published"
-        android:text="1 ano atrás"
-        android:textColor="@android:color/darker_gray"
-        android:textSize="14sp"/>
+    <!--<TextView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginBottom="@dimen/activity_horizontal_margin"-->
+        <!--android:id="@+id/tv_published"-->
+        <!--android:text="1 ano atrás"-->
+        <!--android:textColor="@android:color/darker_gray"-->
+        <!--android:textSize="14sp"/>-->
 
 </LinearLayout>

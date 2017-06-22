@@ -40,7 +40,7 @@ public class VideoListAdapter extends ArrayAdapter<Video> {
             holder.title = (TextView) convertView.findViewById(R.id.tv_title);
             holder.duration = (TextView) convertView.findViewById(R.id.tv_duration);
             holder.picture = (ImageView) convertView.findViewById(R.id.ic_video);
-            holder.published = (TextView) convertView.findViewById(R.id.tv_published);
+//            holder.published = (TextView) convertView.findViewById(R.id.tv_published);
 
         } else {
             holder = (ViewHolder) convertView.getTag();
@@ -49,8 +49,6 @@ public class VideoListAdapter extends ArrayAdapter<Video> {
         Video video = listVideos.get(position);
 
         holder.title.setText(video.getTitle());
-        holder.duration.setText(video.getDuration());
-        holder.published.setText(video.getPublished());
         holder.picture.setImageResource(video.getPicture());
 
         return convertView;
