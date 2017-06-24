@@ -92,7 +92,7 @@ public class PlayerActivity extends AppCompatActivity {
 
     private void initDrawer() {
         itens = new ArrayList<>();
-        itens = myXMPP.getListMembers();
+        itens = myXMPP != null? myXMPP.getListMembers() : new ArrayList<Member>();
 
         listDrawerAdapter = new ListDrawerAdapter(this, itens);
         lvMembersGroup.setAdapter(listDrawerAdapter);

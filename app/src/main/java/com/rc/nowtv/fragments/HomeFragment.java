@@ -67,8 +67,8 @@ public class HomeFragment extends Fragment {
         listVideos.add(new Video("TV Diário", C.URL_LIVE_VIDEO_TV_DIARIO, R.mipmap.ic_tv_diario));
         listVideos.add(new Video("NBR", C.URL_LIVE_VIDEO_NBR, R.mipmap.ic_nbr));
         listVideos.add(new Video("PUC TV - Aparecida", C.URL_LIVE_VIDEO_APARECIDA, R.mipmap.ic_tv_aparecida));
-        listVideos.add(new Video("Rede Notícias", C.URL_LIVE_VIDEO_REDE_NOTICIAS, R.mipmap.ic_sbt));
-        listVideos.add(new Video("SBT", C.URL_LIVE_VIDEO_SBT, R.mipmap.tigre));
+        listVideos.add(new Video("Rede Notícias", C.URL_LIVE_VIDEO_REDE_NOTICIAS, R.mipmap.ic_tv_noticias));
+        listVideos.add(new Video("SBT", C.URL_LIVE_VIDEO_SBT, R.mipmap.ic_sbt));
 
         videoListAdapter = new VideoListAdapter(rootView.getContext(), listVideos);
         lvVideos.setAdapter(videoListAdapter);
