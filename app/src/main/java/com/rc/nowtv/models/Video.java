@@ -10,11 +10,13 @@ public class Video {
     private String published;
     private String url;
     private int picture;
+    private String room;
 
-    public Video(String title, String url, int picture) {
+    public Video(String title, String url, int picture, String room) {
         this.title = title;
         this.url = url;
         this.picture = picture;
+        this.room = room;
     }
 
     public String getTitle() {
@@ -55,5 +57,13 @@ public class Video {
 
     public void setPicture(int picture) {
         this.picture = picture;
+    }
+
+    public String getRoom() {
+        return this.room;
+    }
+
+    public void setRoom(String room) {
+        this.room = room;
     }
 }

@@ -131,7 +131,7 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
                         .setDebuggerEnabled(true)
                         .setCompressionEnabled(false).build();
                 connection = new XMPPTCPConnection(config);
-                connection.setPacketReplyTimeout(1000);
+                connection.setPacketReplyTimeout(60000);
                 connection.addConnectionListener(MyXMPP.this);
                 connection.connect();
             } catch (XMPPException | SmackException | IOException e) {
