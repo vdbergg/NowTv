@@ -61,13 +61,13 @@ public class HomeFragment extends Fragment {
 
     private void initValue() {
         listVideos = new ArrayList<>();
-        listVideos.add(new Video("Amazon Sat", C.URL_LIVE_VIDEO_AMAZONSAT, R.mipmap.sniper));
-        listVideos.add(new Video("TV Escola", C.URL_LIVE_VIDEO_TV_ESCOLA, R.mipmap.alpinista));
-        listVideos.add(new Video("TV Brasil", C.URL_LIVE_VIDEO_TV_BRASIL, R.mipmap.furebol_americano));
-        listVideos.add(new Video("TV Diário", C.URL_LIVE_VIDEO_TV_DIARIO, R.mipmap.cidade));
-        listVideos.add(new Video("NBR", C.URL_LIVE_VIDEO_NBR, R.mipmap.homem_ferro));
-        listVideos.add(new Video("PUC TV - Aparecida", C.URL_LIVE_VIDEO_APARECIDA, R.mipmap.horizonte));
-        listVideos.add(new Video("Rede Notícias", C.URL_LIVE_VIDEO_REDE_NOTICIAS, R.mipmap.tigre));
+        listVideos.add(new Video("Amazon Sat", C.URL_LIVE_VIDEO_AMAZONSAT, R.mipmap.ic_amazon_sat));
+        listVideos.add(new Video("TV Escola", C.URL_LIVE_VIDEO_TV_ESCOLA, R.mipmap.ic_tv_escola));
+        listVideos.add(new Video("TV Brasil", C.URL_LIVE_VIDEO_TV_BRASIL, R.mipmap.ic_tv_brasil));
+        listVideos.add(new Video("TV Diário", C.URL_LIVE_VIDEO_TV_DIARIO, R.mipmap.ic_tv_diario));
+        listVideos.add(new Video("NBR", C.URL_LIVE_VIDEO_NBR, R.mipmap.ic_nbr));
+        listVideos.add(new Video("PUC TV - Aparecida", C.URL_LIVE_VIDEO_APARECIDA, R.mipmap.ic_tv_aparecida));
+        listVideos.add(new Video("Rede Notícias", C.URL_LIVE_VIDEO_REDE_NOTICIAS, R.mipmap.ic_sbt));
         listVideos.add(new Video("SBT", C.URL_LIVE_VIDEO_SBT, R.mipmap.tigre));
 
         videoListAdapter = new VideoListAdapter(rootView.getContext(), listVideos);
