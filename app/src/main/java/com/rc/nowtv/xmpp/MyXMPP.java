@@ -8,6 +8,7 @@ import com.rc.nowtv.R;
 import com.rc.nowtv.models.ChatMessage;
 import com.rc.nowtv.models.Member;
 import com.rc.nowtv.models.User;
+import com.rc.nowtv.models.Video;
 import com.rc.nowtv.utils.C;
 import com.rc.nowtv.utils.LocalStorage;
 
@@ -57,12 +58,13 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
     private String hostAddress;
     private String username;
     private String password;
+    private Video video;
 
     private ReceivedMessages receivedMessages;
     private ArrayList<Member> listMembers;
 
     private MyXMPP(Context context, String mServiceName, String mHostAddress, String username,
-                   String password, ReceivedMessages receivedMessages) {
+                   String password, Video video, ReceivedMessages receivedMessages) {
         this.serviceName = mServiceName;
         this.hostAddress = mHostAddress;
         this.username = username;
@@ -70,13 +72,14 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
         this.context = context;
         this.receivedMessages = receivedMessages;
         this.listMembers = new ArrayList<>();
+        this.video = video;
         init();
     }
 
     public static MyXMPP getInstance(Context context, String mServiceName, String mHostAddress, String user,
-                                     String pass, ReceivedMessages receivedMessages) {
+                                     String pass, Video video, ReceivedMessages receivedMessages) {
         if (instance == null) {
-            instance = new MyXMPP(context, mServiceName, mHostAddress, user, pass, receivedMessages);
+            instance = new MyXMPP(context, mServiceName, mHostAddress, user, pass, video, receivedMessages);
         }
         return instance;
 
@@ -224,7 +227,7 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
             e.printStackTrace();
         }
 
-        join(C.GROUP_NAME, username);
+        join(video.getRoom(), username);
     }
 
     @Override

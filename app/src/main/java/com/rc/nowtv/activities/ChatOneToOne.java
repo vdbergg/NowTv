@@ -13,6 +13,7 @@ import com.rc.nowtv.R;
 import com.rc.nowtv.adapters.ChatOneToOneAdapter;
 import com.rc.nowtv.models.ChatMessage;
 import com.rc.nowtv.models.User;
+import com.rc.nowtv.models.Video;
 import com.rc.nowtv.utils.C;
 import com.rc.nowtv.utils.LocalStorage;
 import com.rc.nowtv.xmpp.MyXMPP;
@@ -46,6 +47,7 @@ public class ChatOneToOne extends Activity {
     private ArrayList<ChatMessage> msgs = new ArrayList<>();
     private LocalStorage localStorage;
     private User user;
+    private Video video;
 
     private View rootView;
 
@@ -62,7 +64,7 @@ public class ChatOneToOne extends Activity {
 
     private void initXMPP() {
         myXMPP = MyXMPP.getInstance(getApplicationContext(), C.DOMAIN, C.URL_SERVER, user.getUsername(),
-                user.getIdUser(), new MyXMPP.ReceivedMessages() {
+                user.getIdUser(), video, new MyXMPP.ReceivedMessages() {
                     @Override
                     public void onReceived(ChatMessage chatMessage) {
 
@@ -127,6 +129,7 @@ public class ChatOneToOne extends Activity {
     private void initView() {
         rootView = findViewById(android.R.id.content);
         localStorage = LocalStorage.getInstance(getApplicationContext());
+        video = localStorage.getObjectFromStorage(LocalStorage.OBJ_VIDEO, Video.class);
         user = localStorage.getObjectFromStorage(LocalStorage.USER, User.class);
 
         btnBack = (ImageButton) findViewById(R.id.ic_back);

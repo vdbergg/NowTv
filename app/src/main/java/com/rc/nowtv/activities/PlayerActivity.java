@@ -232,7 +232,7 @@ public class PlayerActivity extends AppCompatActivity {
     private void initXMPPServer() {
         if (user != null) {
             myXMPP = MyXMPP.getInstance(getApplicationContext(), com.rc.nowtv.utils.C.DOMAIN,
-                    com.rc.nowtv.utils.C.URL_SERVER, user.getUsername(), user.getIdUser(),
+                    com.rc.nowtv.utils.C.URL_SERVER, user.getUsername(), user.getIdUser(), video,
                     new MyXMPP.ReceivedMessages() {
                         @Override
                         public void onReceived(final ChatMessage chatMessage) {
