@@ -127,7 +127,7 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
                         .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
                         .setServiceName(serviceName)
                         .setHost(hostAddress)
-                        .setPort(5222)
+                        .setPort(8080)
                         .setDebuggerEnabled(true)
                         .setCompressionEnabled(false).build();
                 connection = new XMPPTCPConnection(config);
