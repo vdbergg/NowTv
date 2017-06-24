@@ -276,7 +276,7 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
             });
 
             if (!mchat.isJoined()) {
-                mchat.join(username, C.GROUP_NAME/*, "", history, connection.getPacketReplyTimeout()*/);
+                mchat.join(username, group/*, "", history, connection.getPacketReplyTimeout()*/);
                 listMembers = getMembersGroup();
                 System.out.println("The conference room success....");
             }
