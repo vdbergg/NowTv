@@ -63,7 +63,6 @@ public class ChatOneToOne extends Activity {
     }
 
     private void initXMPP() {
-        user = new User("teste2", "", "teste2", "");
         if (user != null) {
             myXMPP = MyXMPP.getInstance(getApplicationContext(), C.DOMAIN, C.URL_SERVER, user.getUsername(),
                     user.getIdUser(), video, new MyXMPP.ReceivedMessages() {

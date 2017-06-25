@@ -17,7 +17,7 @@ public class User {
         this.email = email;
         this.idUser = idUser;
         this.urlPhoto = urlPhoto;
-        this.username = email.substring(0, email.lastIndexOf("@"));
+        if (email != null && !email.equals("")) this.username = email.substring(0, email.lastIndexOf("@"));
     }
 
     public String getUsername() {
