@@ -308,7 +308,7 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
 
     public void sendMessage(String chatMessage) {
         MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
-        mchat = mchat == null? manager.getMultiUserChat(C.GROUP_NAME + "@" + C.GROUP_CHAT_DOMAIN) : mchat;
+        mchat = mchat == null? manager.getMultiUserChat(video.getRoom() + "@" + C.GROUP_CHAT_DOMAIN) : mchat;
 
 //        Message msg = new Message();
 //        msg.setType(Message.Type.groupchat);
@@ -318,8 +318,8 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
 
         if (!mchat.isJoined()) {
             try {
-                mchat.join(username, C.GROUP_NAME);
-                mchat.sendMessage(username + " entrou na sala " + C.GROUP_NAME);
+                mchat.join(username, video.getRoom());
+                mchat.sendMessage(username + " entrou na sala " + video.getRoom());
             } catch (SmackException.NoResponseException e) {
                 e.printStackTrace();
             } catch (XMPPException.XMPPErrorException e) {
@@ -353,7 +353,7 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
         if (connection == null) return new ArrayList<>();
 
         MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
-        mchat = mchat == null? manager.getMultiUserChat(C.GROUP_NAME + "@" + C.GROUP_CHAT_DOMAIN) : mchat;
+        mchat = mchat == null? manager.getMultiUserChat(video.getRoom() + "@" + C.GROUP_CHAT_DOMAIN) : mchat;
 
         List<String> listUser = mchat.getOccupants();
 
@@ -373,7 +373,7 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
         if (connection == null) return;
 
         MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
-        mchat = mchat == null? manager.getMultiUserChat(C.GROUP_NAME + "@" + C.GROUP_CHAT_DOMAIN) : mchat;
+        mchat = mchat == null? manager.getMultiUserChat(video.getRoom() + "@" + C.GROUP_CHAT_DOMAIN) : mchat;
 
         chat = mchat.createPrivateChat(jId, new ChatMessageListener() {
             @Override

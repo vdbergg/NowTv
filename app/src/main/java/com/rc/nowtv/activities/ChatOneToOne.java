@@ -63,48 +63,50 @@ public class ChatOneToOne extends Activity {
     }
 
     private void initXMPP() {
-        myXMPP = MyXMPP.getInstance(getApplicationContext(), C.DOMAIN, C.URL_SERVER, user.getUsername(),
-                user.getIdUser(), video, new MyXMPP.ReceivedMessages() {
-                    @Override
-                    public void onReceived(ChatMessage chatMessage) {
-
-                    }
-
-                    @Override
-                    public void onReceived(Chat chat, final Message message) {
-
-                    }
-
-                    @Override
-                    public void onConnected() {
-                        tvUsername.setText(myXMPP.getChat().getParticipant());
-                    }
-                });
-
-        myXMPP.setOnReceived(new MyXMPP.ReceivedMessages() {
-            @Override
-            public void onReceived(ChatMessage chatMessage) {
-
-            }
-
-            @Override
-            public void onReceived(Chat chat, final Message message) {
-                if (message.getType() == Message.Type.chat && message.getBody() != null) {
-
-                    final ChatMessage chatMessage = new ChatMessage(message.getBody(), ChatMessage.MSG_RECEIVED);
-
-                    runOnUiThread(new Runnable() {
+        user = new User("teste2", "", "teste2", "");
+        if (user != null) {
+            myXMPP = MyXMPP.getInstance(getApplicationContext(), C.DOMAIN, C.URL_SERVER, user.getUsername(),
+                    user.getIdUser(), video, new MyXMPP.ReceivedMessages() {
                         @Override
-                        public void run() {
-                            processMessage(chatMessage);
-                            Log.d(TAG, "Message received: " + message.getBody());
+                        public void onReceived(ChatMessage chatMessage) {
+
+                        }
+
+                        @Override
+                        public void onReceived(Chat chat, final Message message) {
+
+                        }
+
+                        @Override
+                        public void onConnected() {
+                            tvUsername.setText(myXMPP.getChat().getParticipant());
                         }
                     });
-                }
-            }
 
-            @Override
-            public void onConnected() {
+            myXMPP.setOnReceived(new MyXMPP.ReceivedMessages() {
+                @Override
+                public void onReceived(ChatMessage chatMessage) {
+
+                }
+
+                @Override
+                public void onReceived(Chat chat, final Message message) {
+                    if (message.getType() == Message.Type.chat && message.getBody() != null) {
+
+                        final ChatMessage chatMessage = new ChatMessage(message.getBody(), ChatMessage.MSG_RECEIVED);
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                processMessage(chatMessage);
+                                Log.d(TAG, "Message received: " + message.getBody());
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onConnected() {
 //                if (getIntent().getExtras().getBoolean("creating")) {
 //                    String jId = getIntent().getExtras().getString("jId");
 //                    myXMPP.getMuc().createPrivateChat(jId, new ChatMessageListener() {
@@ -115,9 +117,10 @@ public class ChatOneToOne extends Activity {
 //                        }
 //                    });
 //                }
-            }
-        });
-    }
+                }
+            });
+        }
+        }
 
     private void initValue() {
         msgs = new ArrayList<>();

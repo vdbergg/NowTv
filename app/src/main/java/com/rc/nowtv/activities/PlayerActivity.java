@@ -230,6 +230,8 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     private void initXMPPServer() {
+        user = new User("teste2", "", "teste2", "");
+
         if (user != null) {
             myXMPP = MyXMPP.getInstance(getApplicationContext(), com.rc.nowtv.utils.C.DOMAIN,
                     com.rc.nowtv.utils.C.URL_SERVER, user.getUsername(), user.getIdUser(), video,
