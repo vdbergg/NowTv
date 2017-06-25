@@ -18,6 +18,6 @@ public class C {
     public static final String URL_LIVE_VIDEO_SBT = "http://slrp.sambavideos.sambatech.com/liveevent/sbtabr_8fcdc5f0f8df8d4de56b22a2c6660470/livestream1/chunklist.m3u8";
 
     public static final String URL_LIVE_VIDEO_TEST = "http://192.168.0.3:14000/stream";
-    public static final String GROUP_CHAT_DOMAIN = "conference." + C.DOMAIN;
+    public static final String GROUP_CHAT_DOMAIN = "conference.myserver.rc";
     public static final String GROUP_NAME = "redes2017";
 }

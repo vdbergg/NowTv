@@ -77,7 +77,7 @@ public class ChatOneToOne extends Activity {
 
                     @Override
                     public void onConnected() {
-
+                        tvUsername.setText(myXMPP.getChat().getParticipant());
                     }
                 });
 
@@ -135,7 +135,7 @@ public class ChatOneToOne extends Activity {
         btnBack = (ImageButton) findViewById(R.id.ic_back);
         icUser = (ImageView) findViewById(R.id.ic_user_one_to_one);
         tvUsername = (TextView) findViewById(R.id.tv_username);
-        tvStatus = (TextView) findViewById(R.id.tv_status);
+//        tvStatus = (TextView) findViewById(R.id.tv_status);
 
         lvChat = (ListView) findViewById(R.id.lv_chat_one_to_one);
         icEmojin = (ImageView) findViewById(R.id.ic_emoji_button);

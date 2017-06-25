@@ -56,13 +56,13 @@
                 android:id="@+id/tv_username"
                 android:textColor="@android:color/black"/>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="status"
-                android:textSize="13sp"
-                android:id="@+id/tv_status"
-                android:textColor="@color/white_grayed"/>
+            <!--<TextView-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="status"-->
+                <!--android:textSize="13sp"-->
+                <!--android:id="@+id/tv_status"-->
+                <!--android:textColor="@color/white_grayed"/>-->
 
         </LinearLayout>
     </RelativeLayout>
