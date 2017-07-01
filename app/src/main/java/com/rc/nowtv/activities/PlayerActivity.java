@@ -223,6 +223,7 @@ public class PlayerActivity extends AppCompatActivity {
         btnAlertChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                btnAlertChat.setVisibility(View.GONE);
                 Intent i = new Intent(getApplicationContext(), ChatOneToOne.class);
                 startActivity(i);
             }
@@ -270,7 +271,7 @@ public class PlayerActivity extends AppCompatActivity {
 
     private void getPastMessages() {
         listMessages = myXMPP.getOldMessages();
-        chatAdapter = new ChatAdapter(getApplicationContext(), 0, myXMPP.getOldMessages());
+        chatAdapter = new ChatAdapter(getApplicationContext(), 0, listMessages);
 
         listOfMessage.setAdapter(chatAdapter);
         listOfMessage.setVisibility(View.VISIBLE);

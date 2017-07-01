@@ -27,13 +27,13 @@ public class MainActivity extends AppCompatActivity {
         initViewPager();
         initListeners();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openPlayer();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                openPlayer();
+//            }
+//        });
 
     }
 
@@ -74,4 +74,5 @@ public class MainActivity extends AppCompatActivity {
     private void openPlayer() {
         startActivity(new Intent(getApplicationContext(), PlayerActivity.class));
     }
-    }
+
+}

@@ -268,9 +268,10 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
                 @Override
                 public void processMessage(Message message) {
                     Log.d("MyXMPP_MESSAGE_LISTENER", "Xmpp message received: '" + message);
+                    String username = message.getFrom().substring(message.getFrom().lastIndexOf("/")+1, message.getFrom().length());
+
                     if (message != null && message.getBody() != null) {
-                        receivedMessages.onReceived(new ChatMessage(message.getBody(),
-                                message.getFrom().substring(message.getFrom().lastIndexOf("/")+1, message.getFrom().length()), null));
+                        receivedMessages.onReceived(new ChatMessage(message.getBody(), username, null));
                     }
                 }
             });
