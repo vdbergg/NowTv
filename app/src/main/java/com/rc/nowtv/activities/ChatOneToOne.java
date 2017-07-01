@@ -8,6 +8,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.rc.nowtv.R;
 import com.rc.nowtv.adapters.ChatOneToOneAdapter;
@@ -72,13 +73,18 @@ public class ChatOneToOne extends Activity {
                         }
 
                         @Override
-                        public void onReceived(Chat chat, final Message message) {
+                        public void onReceivedChatOne(Chat chat, final Message message) {
 
                         }
 
                         @Override
                         public void onConnected() {
                             tvUsername.setText(myXMPP.getChat().getParticipant());
+                        }
+
+                        @Override
+                        public void onConnectionFailed() {
+                            Toast.makeText(getApplicationContext(), "A conexão com o servidor falhou. Verifique sua rede", Toast.LENGTH_LONG).show();
                         }
                     });
 
@@ -89,7 +95,7 @@ public class ChatOneToOne extends Activity {
                 }
 
                 @Override
-                public void onReceived(Chat chat, final Message message) {
+                public void onReceivedChatOne(Chat chat, final Message message) {
                     if (message.getType() == Message.Type.chat && message.getBody() != null) {
 
                         final ChatMessage chatMessage = new ChatMessage(message.getBody(), ChatMessage.MSG_RECEIVED);
@@ -116,6 +122,11 @@ public class ChatOneToOne extends Activity {
 //                        }
 //                    });
 //                }
+                }
+
+                @Override
+                public void onConnectionFailed() {
+                    Toast.makeText(getApplicationContext(), "A conexão com o servidor falhou. Verifique sua rede", Toast.LENGTH_LONG).show();
                 }
             });
         }

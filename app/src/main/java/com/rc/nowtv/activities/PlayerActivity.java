@@ -2,7 +2,6 @@ package com.rc.nowtv.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -13,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -72,6 +72,9 @@ public class PlayerActivity extends AppCompatActivity {
     private ListDrawerAdapter listDrawerAdapter;
     private ArrayList<Member> itens;
     private boolean isShowDrawer;
+    private boolean isJoinConnected;
+
+    private ProgressBar progressBar;
 
     private Video video;
 
@@ -231,6 +234,7 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     private void initXMPPServer() {
+        initializeProgressDialog();
         if (user != null) {
             myXMPP = MyXMPP.getInstance(getApplicationContext(), com.rc.nowtv.utils.C.DOMAIN,
                     com.rc.nowtv.utils.C.URL_SERVER, user.getUsername(), user.getIdUser(), video,
@@ -246,7 +250,7 @@ public class PlayerActivity extends AppCompatActivity {
                         }
 
                         @Override
-                        public void onReceived(Chat chat, Message message) {
+                        public void onReceivedChatOne(Chat chat, Message message) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -257,6 +261,8 @@ public class PlayerActivity extends AppCompatActivity {
 
                         @Override
                         public void onConnected() {
+                            isJoinConnected = true;
+
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -265,8 +271,14 @@ public class PlayerActivity extends AppCompatActivity {
                                 }
                             });
                         }
+
+                        @Override
+                        public void onConnectionFailed() {
+                            Toast.makeText(getApplicationContext(), "A conexão com o servidor falhou. Verifique sua rede", Toast.LENGTH_LONG).show();
+                        }
                     });
         }
+
     }
 
     private void getPastMessages() {
@@ -274,11 +286,20 @@ public class PlayerActivity extends AppCompatActivity {
         chatAdapter = new ChatAdapter(getApplicationContext(), 0, listMessages);
 
         listOfMessage.setAdapter(chatAdapter);
-        listOfMessage.setVisibility(View.VISIBLE);
+        chatAdapter.notifyDataSetChanged();
         scrollToLast();
+        finalizeProgressDialog();
     }
 
     private void refreshAdapter(ChatMessage chatMessage) {
+        if (listMessages == null) {
+            listMessages = new ArrayList<>();
+        }
+
+        if (chatAdapter == null) {
+            chatAdapter = new ChatAdapter(getApplicationContext(), 0, listMessages);
+        }
+
         listMessages.add(chatMessage);
         chatAdapter.add(chatMessage);
         chatAdapter.notifyDataSetChanged();
@@ -318,21 +339,6 @@ public class PlayerActivity extends AppCompatActivity {
         };
         vodPlayer.buildPlayer(url, C.TYPE_HLS, evaluator);
 
-//        final VideoView videoView = (VideoView)findViewById(R.id.video_view);
-////        videoView.setVideoURI(Uri.parse(C.URL_LIVE_VIDEO_TEST));
-//        videoView.setVideoPath(C.URL_LIVE_VIDEO);
-//        getWindow().setFormat(PixelFormat.TRANSLUCENT);
-//
-//        videoView.setMediaController(new MediaController(this));
-//        videoView.requestFocus();
-//        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-//            public void onPrepared(MediaPlayer mp) {
-//                //progressDialog.dismiss();
-//                videoView.seekTo(0);
-//                videoView.start();
-//                Log.d(TAG, "Onprepared ok, reproduzindo...");
-//            }
-//        });
     }
 
     private void showChat(boolean isShow) {
@@ -343,6 +349,15 @@ public class PlayerActivity extends AppCompatActivity {
             setVisibilityChatItems(View.GONE);
             imgShowChat.setImageResource(R.mipmap.ic_expand_less_black_24dp);
         }
+    }
+
+    private void initializeProgressDialog() {
+        progressBar = (ProgressBar) rootView.findViewById(R.id.progress_bar);
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void finalizeProgressDialog() {
+        progressBar.setVisibility(View.GONE);
     }
 
     private void setVisibilityChatItems(int visibility) {
@@ -359,7 +374,20 @@ public class PlayerActivity extends AppCompatActivity {
         super.onBackPressed();
         if (vodPlayer != null && vodPlayer.getExoPlayer() != null)
             vodPlayer.getExoPlayer().release();
+
+
         finish();
+        if (myXMPP != null) {
+            myXMPP.connectionClosed();
+            MyXMPP.instance = null;
+            myXMPP = null;
+        }
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override
@@ -367,13 +395,7 @@ public class PlayerActivity extends AppCompatActivity {
         super.onStop();
         if (vodPlayer != null && vodPlayer.getExoPlayer() != null)
             vodPlayer.getExoPlayer().release();
-    }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        initXMPPServer();
-
-        super.onConfigurationChanged(newConfig);
     }
 
 }

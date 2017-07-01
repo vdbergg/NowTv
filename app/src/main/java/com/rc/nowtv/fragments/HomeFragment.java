@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.rc.nowtv.R;
 import com.rc.nowtv.activities.PlayerActivity;
 import com.rc.nowtv.adapters.VideoListAdapter;
+import com.rc.nowtv.models.User;
 import com.rc.nowtv.models.Video;
 import com.rc.nowtv.utils.C;
 import com.rc.nowtv.utils.LocalStorage;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 public class HomeFragment extends Fragment {
     private ListView lvVideos;
     private VideoListAdapter videoListAdapter;
+    private LocalStorage localStorage;
 
     private ArrayList<Video> listVideos;
 
@@ -48,13 +50,20 @@ public class HomeFragment extends Fragment {
     }
 
     private void initView() {
+        localStorage = LocalStorage.getInstance(rootView.getContext());
+
         lvVideos = (ListView) rootView.findViewById(R.id.lv_videos);
         lvVideos.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(rootView.getContext(), "Video posição: " + position + " clicado.", Toast.LENGTH_SHORT).show();
-                LocalStorage.getInstance(rootView.getContext()).addToStorage(LocalStorage.OBJ_VIDEO, listVideos.get(position));
-                startActivity(new Intent(rootView.getContext(), PlayerActivity.class));
+//                Toast.makeText(rootView.getContext(), "Video posição: " + position + " clicado.", Toast.LENGTH_SHORT).show();
+
+                if (localStorage.getObjectFromStorage(LocalStorage.USER, User.class) != null) {
+                    LocalStorage.getInstance(rootView.getContext()).addToStorage(LocalStorage.OBJ_VIDEO, listVideos.get(position));
+                    startActivity(new Intent(rootView.getContext(), PlayerActivity.class));
+                } else {
+                    Toast.makeText(rootView.getContext(), "É necessário fazer login para participar.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

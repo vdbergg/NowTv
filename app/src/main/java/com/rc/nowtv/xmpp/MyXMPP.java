@@ -48,7 +48,7 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
 //    private XmppService contextXMPP;
     private Context context;
 
-    private static MyXMPP instance;
+    public static MyXMPP instance;
     private static XMPPTCPConnection connection;
     private MultiUserChat mchat;
     private Chat chat;
@@ -81,6 +81,7 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
         if (instance == null) {
             instance = new MyXMPP(context, mServiceName, mHostAddress, user, pass, video, receivedMessages);
         }
+
         return instance;
 
     }
@@ -104,7 +105,7 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
         chat.addMessageListener(new ChatMessageListener() {
             @Override
             public void processMessage(Chat chat, Message message) {
-                receivedMessages.onReceived(chat, message);
+                receivedMessages.onReceivedChatOne(chat, message);
                 Log.d(TAG, "Mensagem recebida em chat um pra um: " + message.getBody());
             }
         });
@@ -199,7 +200,7 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
                             chat.addMessageListener(new ChatMessageListener() {
                                 @Override
                                 public void processMessage(Chat chat, Message message) {
-                                    receivedMessages.onReceived(chat, message);
+                                    receivedMessages.onReceivedChatOne(chat, message);
                                 }
                             });
                         }
@@ -297,7 +298,9 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
                 Message message = mchat.nextMessage();
 
                 while (message != null) {
-                    oldMessages.add(new ChatMessage(message.getBody(), message.getFrom(), null));
+                    String username = message.getFrom().substring(message.getFrom().lastIndexOf("/")+1, message.getFrom().length());
+
+                    oldMessages.add(new ChatMessage(message.getBody(), username, null));
                     message = mchat.nextMessage();
                 }
             } catch (MUCNotJoinedException e) {
@@ -397,8 +400,9 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
 
     public interface ReceivedMessages {
         void onReceived(ChatMessage chatMessage);
-        void onReceived(Chat chat, Message message);
+        void onReceivedChatOne(Chat chat, Message message);
 
         void onConnected();
+        void onConnectionFailed();
     }
 }
