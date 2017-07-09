@@ -27,6 +27,7 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.delay.packet.DelayInformation;
 import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.jivesoftware.smackx.muc.MUCNotJoinedException;
 import org.jivesoftware.smackx.muc.MultiUserChat;
@@ -34,6 +35,7 @@ import org.jivesoftware.smackx.muc.MultiUserChatManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -261,18 +263,25 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
             MultiUserChatManager mchatManager = MultiUserChatManager.getInstanceFor(connection);
             mchat = mchatManager.getMultiUserChat(group + "@" + C.GROUP_CHAT_DOMAIN);
 
-//            DiscussionHistory history = new DiscussionHistory();
-//            history.setMaxStanzas(5);
-//            history.setSince(new Date());
-
             mchat.addMessageListener(new MessageListener() {
                 @Override
                 public void processMessage(Message message) {
+                    DelayInformation inf = null;
+                    try {
+                        inf = (DelayInformation)message.getExtension("delay","urn:xmpp:delay");
+                    } catch (Exception e) {
+                        Log.e(TAG, "Erro ao pegar timestamp");
+                    }
+                    long date = new Date().getTime();
+                    if (inf != null)
+                        date = inf.getStamp().getTime();
+
+
                     Log.d("MyXMPP_MESSAGE_LISTENER", "Xmpp message received: '" + message);
                     String username = message.getFrom().substring(message.getFrom().lastIndexOf("/")+1, message.getFrom().length());
 
                     if (message != null && message.getBody() != null) {
-                        receivedMessages.onReceived(new ChatMessage(message.getBody(), username, null));
+                        receivedMessages.onReceived(new ChatMessage(message.getBody(), username, date));
                     }
                 }
             });
@@ -313,12 +322,6 @@ public class MyXMPP implements ConnectionListener, ChatManagerListener {
     public void sendMessage(String chatMessage) {
         MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
         mchat = mchat == null? manager.getMultiUserChat(video.getRoom() + "@" + C.GROUP_CHAT_DOMAIN) : mchat;
-
-//        Message msg = new Message();
-//        msg.setType(Message.Type.groupchat);
-//        msg.setTo("redes2017@" + C.GROUP_CHAT_DOMAIN);
-//        msg.setBody(chatMessage);
-
 
         if (!mchat.isJoined()) {
             try {

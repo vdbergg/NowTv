@@ -25,6 +25,13 @@ public class ChatMessage {
         time = new Date().getTime();
     }
 
+    public ChatMessage(String messageText, String username, long timeStamp) {
+        this.messageText = messageText;
+        this.username = username;
+        time = timeStamp;
+    }
+
+
     public ChatMessage() {
 
     }
