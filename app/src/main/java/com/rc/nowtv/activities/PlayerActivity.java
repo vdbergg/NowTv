@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -134,6 +135,10 @@ public class PlayerActivity extends AppCompatActivity {
         emojiconEditText = (EmojiconEditText) findViewById(R.id.emojicon_edit_text);
         emojIconActions = new EmojIconActions(getApplicationContext(), rootView, emojiButton, emojiconEditText);
         emojIconActions.ShowEmojicon();
+
+        listMessages = new ArrayList<>();
+        chatAdapter = new ChatAdapter(getApplicationContext(), 0, listMessages);
+        listOfMessage.setAdapter(chatAdapter);
 
         localStorage = LocalStorage.getInstance(getApplicationContext());
         video = localStorage.getObjectFromStorage(LocalStorage.OBJ_VIDEO, Video.class);
@@ -267,7 +272,8 @@ public class PlayerActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     initDrawer();
-                                    getPastMessages();
+                                    finalizeProgressDialog();
+//                                    getPastMessages();
                                 }
                             });
                         }
@@ -288,22 +294,16 @@ public class PlayerActivity extends AppCompatActivity {
         listOfMessage.setAdapter(chatAdapter);
         chatAdapter.notifyDataSetChanged();
         scrollToLast();
-        finalizeProgressDialog();
+//        finalizeProgressDialog();
     }
 
     private void refreshAdapter(ChatMessage chatMessage) {
-        if (listMessages == null) {
-            listMessages = new ArrayList<>();
-        }
-
-        if (chatAdapter == null) {
-            chatAdapter = new ChatAdapter(getApplicationContext(), 0, listMessages);
-        }
-
+        Log.d(TAG, "Mensagem-> " + chatMessage.getMessageText() + " adicionada");
         listMessages.add(chatMessage);
         chatAdapter.add(chatMessage);
         chatAdapter.notifyDataSetChanged();
         scrollToLast();
+        finalizeProgressDialog();
     }
 
     private void initVodPlayer() {
